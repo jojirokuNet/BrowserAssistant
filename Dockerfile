@@ -1,4 +1,4 @@
-FROM adguard/extension-builder:22.17--0.2--0 AS base
+FROM adguard/extension-builder:22.22--0.4.1--0 AS base
 
 WORKDIR /browser-assistant
 
