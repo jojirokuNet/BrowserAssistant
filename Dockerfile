@@ -83,7 +83,7 @@ COPY --from=build-beta /out/ /
 # + creates source.zip via archive-source.sh
 # + signs with go-webext
 # No private repo needed
-# Output: firefox.xpi, update.json, build.txt, firefox.zip, source.zip
+# Output: firefox.xpi, update.json, build.txt, firefox.zip, source.zip, approval-notes.txt
 # ============================================================================
 FROM source-deps AS build-beta-firefox-base
 
@@ -97,7 +97,8 @@ RUN --mount=type=cache,target=/pnpm-store,id=browser-assistant-pnpm \
     pnpm test && \
     pnpm locales validate --min && \
     pnpm artifacts:beta-firefox && \
-    ./bamboo-specs/scripts/archive-source.sh beta
+    ./bamboo-specs/scripts/archive-source.sh beta && \
+    ./bamboo-specs/scripts/generate-approval-notes.sh build/beta
 
 FROM build-beta-firefox-base AS build-beta-firefox
 
@@ -106,13 +107,21 @@ RUN --mount=type=secret,id=FIREFOX_CLIENT_ID \
     cd ./build/beta && \
     FIREFOX_CLIENT_ID="$(cat /run/secrets/FIREFOX_CLIENT_ID)" \
     FIREFOX_CLIENT_SECRET="$(cat /run/secrets/FIREFOX_CLIENT_SECRET)" \
-    go-webext -v sign firefox -f 'firefox.zip' -s 'source.zip' -o 'firefox.xpi' && \
+    go-webext \
+      -v \
+      sign \
+      firefox \
+      -f 'firefox.zip' \
+      -s 'source.zip' \
+      -o 'firefox.xpi' \
+      -n "$(cat approval-notes.txt)" && \
     mkdir -p /out/artifacts && \
     cp /browser-assistant/build/beta/build.txt /out/artifacts/ && \
     cp /browser-assistant/build/beta/firefox.xpi /out/artifacts/ && \
     cp /browser-assistant/build/beta/firefox.zip /out/artifacts/ && \
     cp /browser-assistant/build/beta/update.json /out/artifacts/ && \
-    cp /browser-assistant/build/beta/source.zip /out/artifacts/
+    cp /browser-assistant/build/beta/source.zip /out/artifacts/ && \
+    cp /browser-assistant/build/beta/approval-notes.txt /out/artifacts/
 
 FROM scratch AS build-beta-firefox-output
 COPY --from=build-beta-firefox /out/ /
@@ -122,7 +131,7 @@ COPY --from=build-beta-firefox /out/ /
 # Runs: pnpm lint + pnpm test + pnpm locales validate + pnpm artifacts:release
 # Requires private repo (extensions-private) for CRX signing
 # + creates source.zip via archive-source.sh
-# Output: edge.zip, build.txt, chrome.crx, chrome.zip, firefox.zip, update.xml, source.zip
+# Output: edge.zip, build.txt, chrome.crx, chrome.zip, firefox.zip, update.xml, source.zip, approval-notes.txt
 # ============================================================================
 FROM source-deps AS build-release
 
@@ -139,6 +148,7 @@ RUN --mount=type=cache,target=/pnpm-store,id=browser-assistant-pnpm \
     pnpm locales validate --min && \
     pnpm artifacts:release && \
     ./bamboo-specs/scripts/archive-source.sh release && \
+    ./bamboo-specs/scripts/generate-approval-notes.sh build/release && \
     mkdir -p /out/artifacts && \
     cp build/release/build.txt /out/artifacts/ && \
     cp build/release/chrome.crx /out/artifacts/ && \
@@ -146,7 +156,8 @@ RUN --mount=type=cache,target=/pnpm-store,id=browser-assistant-pnpm \
     cp build/release/edge.zip /out/artifacts/ && \
     cp build/release/firefox.zip /out/artifacts/ && \
     cp build/release/update.xml /out/artifacts/ && \
-    cp build/release/source.zip /out/artifacts/
+    cp build/release/source.zip /out/artifacts/ && \
+    cp build/release/approval-notes.txt /out/artifacts/
 
 FROM scratch AS build-release-output
 COPY --from=build-release /out/ /

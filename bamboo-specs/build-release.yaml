@@ -65,7 +65,7 @@ Build:
     - script:
         interpreter: SHELL
         scripts:
-          - "./bamboo-specs/scripts/cleanup.sh output/artifacts/build.txt,output/artifacts/chrome.crx,output/artifacts/chrome.zip,output/artifacts/edge.zip,output/artifacts/firefox.zip,output/artifacts/update.xml,output/artifacts/source.zip"
+          - "./bamboo-specs/scripts/cleanup.sh output/artifacts/build.txt,output/artifacts/chrome.crx,output/artifacts/chrome.zip,output/artifacts/edge.zip,output/artifacts/firefox.zip,output/artifacts/update.xml,output/artifacts/source.zip,output/artifacts/approval-notes.txt"
   artifacts:
     - name: edge.zip
       location: output/artifacts
@@ -100,6 +100,11 @@ Build:
     - name: source.zip
       location: output/artifacts
       pattern: source.zip
+      shared: true
+      required: true
+    - name: approval-notes.txt
+      location: output/artifacts
+      pattern: approval-notes.txt
       shared: true
       required: true
   requirements:

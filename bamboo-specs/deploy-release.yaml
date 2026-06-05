@@ -52,6 +52,10 @@ Addons Mozilla:
           - name: build.txt
           - name: firefox.zip
           - name: source.zip
+          # TODO(AG-52020): Uncomment after the build plan is imported with approval-notes.txt artifact.
+          # Bamboo validates deploy artifact references against the currently published build plan,
+          # so this artifact must be added in a follow-up commit after the build plan goes live.
+          # - name: approval-notes.txt
     - script:
         interpreter: SHELL
         scripts:
