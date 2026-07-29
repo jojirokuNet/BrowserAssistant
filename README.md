@@ -1,182 +1,137 @@
 # AdGuard Browser Assistant
 
-AdGuard Browser Assistant extension:
-<https://adguard.com/en/adguard-assistant/overview.html>
+<p align="center">
+  Companion extension for the AdGuard desktop app — manage filtering
+  right from the browser and hide annoying elements in two clicks.
+</p>
 
-This is a replacement for the [legacy assistant](https://github.com/AdguardTeam/AdguardAssistant) userscript
-we were using before that.
+<p align="center">
+  <img src="metadata/images/en/assistant_screenshot_1.png" alt="Browser Assistant popup" width="600">
+</p>
 
-- [Development](#development)
-    - [Build](#build)
-    - [Lint](#lint)
-    - [Tests](#tests)
-    - [Localization](#localization)
-    - [CRX Beta and Release Builds](#crx-beta-and-release-builds)
-    - [XPI Builds](#xpi-builds)
-    - [Artifacts](#artifacts)
-    - [How to debug without AdGuard application](#how-to-debug-without-adguard-application)
-    - [Testing Browser Assistant build with AdGuard](#testing-browser-assistant-build-with-adguard)
+## Description
+
+AdGuard Browser Assistant is for users of the AdGuard desktop app
+(Windows/Mac) who want to see and control filtering without leaving the
+browser. Checking whether a site is filtered, allowlisting it, or
+reporting a missed ad otherwise means opening the desktop app — the
+extension puts those controls into the browser toolbar instead.
+
+The extension does not filter traffic by itself: the desktop app does
+the filtering, and the extension is its browser-side companion UI. It
+shows the filtering status of the current tab and lets you toggle
+protection, pause filtering, block elements manually, and report
+websites in a couple of clicks.
+
+This is a replacement for the [legacy assistant](https://github.com/AdguardTeam/AdguardAssistant)
+userscript we were using before that.
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Features](#features)
 - [Permissions](#permissions)
+- [FAQ / Troubleshooting](#faq--troubleshooting)
+- [Browser compatibility](#browser-compatibility)
 - [Acknowledgments](#acknowledgments)
-- [Minimum supported browser versions](#browser-compatibility)
+- [Documentation](#documentation)
 
-## Development
+## Installation
 
-### Build
+**Important:** this extension requires the AdGuard desktop app to
+function. Install AdGuard for Mac or Windows first, then use this
+extension to expand the app's capabilities.
 
-- `pnpm install`
-- `pnpm dev` / `pnpm beta` / `pnpm release` (specify chrome | firefox | edge | all by default)
-    - add `--watch` if you want to watch for changes
+1. Install AdGuard for [Windows or Mac](https://adguard.com/).
+2. Install the extension from your browser's web store — links for
+   Chrome, Firefox, Edge, and Opera are on the
+   [product page](https://adguard.com/en/adguard-assistant/overview.html).
+3. After installation, confirm the consent agreement on the post-install
+   page.
 
-Builds will be located in the `build` directory.
+## Quick Start
 
-### Lint
+1. Make sure the AdGuard desktop app is installed and running.
+2. Click the AdGuard Browser Assistant icon in the browser toolbar.
+3. The popup shows the filtering status of the current tab. From here
+   you can toggle protection for the site, block an element, or pause
+   filtering — the extension is active right away.
 
-- `pnpm lint`
+## Features
 
-### Tests
+### Toolbar popup
 
-- `pnpm test`
+- View the filtering status of the current tab: protection state,
+  number of blocked ads, and HTTPS filtering/certificate details.
+- Enable or disable filtering on the current website.
+- Pause all filtering for 30 seconds.
+- Remove all user rules for the current page in one click.
+- Jump to the desktop app's filtering log or settings for this page.
 
-### Localization
+### Element blocking
 
-- `setup your project locales, directories in the file scripts/translations/config.json`
-- `pnpm locales upload` used to upload base `en` locale
-- `pnpm locales download` run to download and save all locales
+- Launch the Assistant overlay from the popup or the context menu,
+  select any annoying element on the page (text, image, video, banner),
+  and remove it. A user filter rule is created automatically.
 
-### CRX Beta and Release Builds
+### Website reporting
 
-- Put the repository with the `certificate-beta.pem`, `certificate-release.pem` files to the project root directory.
-- `pnpm crx:beta` and `pnpm crx:release` create web extension files for Chromium and Google Chrome browsers —
-  build, zipped build, and update manifest XML document.
-  You must have the `certificate-beta.pem` or `certificate-release.pem` to run the corresponding command.
+- Report a website (e.g. when an ad snuck through) directly from the
+  popup or the context menu.
 
-### XPI Builds
+### Context menu
 
-- Put the repository with the `mozilla_credentials.json` file containing `apiKey` and `apiSecret` properties
-  with the values of type string to the project root directory.
-- `pnpm xpi` create web extension files for Mozilla Firefox browser — build, zipped build
-  and update manifest JSON document. You must have the `mozilla_credentials.json` to run this commands.
-
-### Artifacts
-
-- `CREDENTIALS_PASSWORD=<password> pnpm artifacts:beta`
-- `CREDENTIALS_PASSWORD=<password> pnpm artifacts:release`
-
-Respectively creates Chrome and Firefox beta and release builds, zipped builds, documents for update
-and text file containing current version, signs the Firefox build.
-
-### How to debug without AdGuard application
-
-- Go to file `src/background/api/index.js` and read instructions
-
-- Whenever you need to change the API state, do it via the browser console
-  from the background page (e.g., `hostData.appState.isProtectionEnabled = false` disables AdGuard protection).
-- Structure of the `hostData` object:
-
-```js
-{
-    result: 'ok',
-    version: '7.3.2496',
-    apiVersion: '3',
-    isValidatedOnHost: true,
-    reportUrl: 'https://link.adtidy.org/forward.html?action=report&from=popup&app=browser_assistant&url=http://example.org',
-    appState: {
-        isRunning: true,
-        isProtectionEnabled: true,
-        isLicenseExpired: false,
-        isInstalled: true,
-        isAuthorized: true,
-        locale: 'ru',
-    },
-    currentFilteringState: {
-        isFilteringEnabled: true,
-        isHttpsFilteringEnabled: true,
-        isPageFilteredByUserFilter: false,
-        blockedAdsCount: 180,
-        totalBlockedCount: 1234,
-        originalCertIssuer: 'RapidSSL RSA CA',
-        originalCertStatus: 'valid',
-    },
-}
-```
-
-### Testing Browser Assistant build with AdGuard
-
-#### Preconditions
-
-- AdGuard installed and launched.
-- Browser Assistant build installed.
-
-#### OSX instructions
-
-**Step 1:**
-
-- In Browser Assistant extension settings copy extension ID.
-- Paste it in `devConfig.json` file:
-    - for Chrome or Edge add to `chrome_extension_id` as array (see example below);
-    - for Firefox add to `firefox_extension_id` as array (see example below).
-- Save file in AdGuard folder `/Library/Application Support/com.adguard.mac.adguard/`
-  or `/Library/Application Support/com.adguard.mac.adguard.debug/` depends on build configuration.
-
-**Step 2:**
-
-- Open Terminal.
-- Type `cd /Library/Application\ Support/AdGuard\ Software/com.adguard.mac.adguard/`.
-- Type `sudo chown root devConfig.json`.
-- Type `sudo chmod 444 devConfig.json`.
-- Type your Mac password.
-- Type `ls -la /Library/Application\ Support/AdGuard\ Software/com.adguard.mac.adguard/`.
-
-**Result:**
-
-- `devConfig.json` file received root rights.
-
-**Step 3:**
-
-- Restart AdGuard.
-- Tap on the Browser Assistant icon in a browser.
-
-#### Windows instructions
-
-**Step 1:**
-
-- In Browser Assistant extension settings copy extension ID.
-- Paste it in `devConfig.json` file:
-    - for Chrome or Edge add to `chrome_extension_id` as array (see example below);
-    - for Firefox add to `firefox_extension_id` as array (see example below).
-- Save file in AdGuard folder `C:\Program Files (x86)\Adguard`.
-
-**Step 2:**
-
-- Restart AdGuard.
-- Tap on the Browser Assistant icon in a browser.
-
-**Example of `devConfig.json`**
-
-```json
-{
-    "chrome_extension_id": [
-        "biolhaiicomblcmahaljilbdppdnvyib",
-        "dfkjnvdkfvkvdjfnkddksjsdjnfjfdfj"
-    ],
-    "firefox_extension_id": [
-        "extensionid@example.org"
-    ]
-}
-```
-
-where values in `chrome_extension_id` are:
-
-- `biolhaiicomblcmahaljilbdppdnvyib` — extension ID for Chrome;
-- `dfkjnvdkfvkvdjfnkddksjsdjnfjfdfj` — extension ID for Edge.
+- Right-click a page to enable/disable filtering on this website, block
+  ads on it, report an issue, pause/resume AdGuard protection, or open
+  AdGuard settings and the filtering log.
+- The context menu integration can be turned off on the extension's
+  options page.
 
 ## Permissions
 
-- Permission `tabs` allows to indicate the status of websites by changing the icon color.
-- Permission `activeTabs` allows to inject script
-  of [adguard-assistant](https://github.com/AdguardTeam/AdguardAssistant) into the content page.
-- Permission `nativeMessaging` allows to communicate with the native host.
+| Permission | Reason |
+| --- | --- |
+| `nativeMessaging` | Communicate with the AdGuard desktop app (native host) |
+| `tabs` | Indicate website filtering status by changing the icon color |
+| `activeTab` | Show filtering status and stats for the current tab |
+| `scripting` | Inject the element-blocking Assistant overlay into the page |
+| `contextMenus` | Add filtering actions to the page context menu |
+| `storage` | Save extension settings and the consent agreement |
+
+## FAQ / Troubleshooting
+
+**The popup says "AdGuard is not installed or configured incorrectly".**
+Install the AdGuard desktop app for
+[Windows or Mac](https://adguard.com/) and make sure it is running.
+
+**The popup says "AdGuard is not running" or "AdGuard is not updated".**
+Launch the desktop app, or update it to the latest version — the
+extension needs a compatible app version to talk to.
+
+**The icon or menu says "AdGuard cannot run on this domain".**
+Some pages — browser internal pages, other extensions' pages, web
+stores — are inaccessible to extensions, so filtering status and
+controls are unavailable there.
+
+**Why isn't HTTPS filtered on my bank's website?**
+By default, HTTPS traffic of payment systems and banks is not filtered.
+You can enable filtering for such a site yourself: click the yellow
+"lock" icon in the popup.
+
+**The popup says "Trial has expired".**
+Filtering is disabled until the AdGuard license is renewed or purchased
+in the desktop app.
+
+## Browser compatibility
+
+<!-- NOTE: keep in sync with MIN_SUPPORTED_VERSION in ./constants.js -->
+
+| Browser | Version |
+| --- | --- |
+| Chromium-based browsers | ✅ 88 |
+| Firefox | ✅ 109 |
+| Opera | ✅ 74 |
 
 ## Acknowledgments
 
@@ -188,14 +143,12 @@ This software wouldn't have been possible without:
 - [Jest](https://github.com/facebook/jest)
 - and many more npm packages.
 
-For a full list of all `npm` packages in use, please take a look at [package.json](package.json) file.
+For a full list of all `npm` packages in use, please take a look at
+[package.json](package.json) file.
 
-## <a name="browser-compatibility"></a> Minimum supported browser versions
+## Documentation
 
-<!-- NOTE: see MIN_SUPPORTED_VERSION in ./scripts/consts.ts -->
-
-| Browser                 | Version |
-|------------------------ |---------|
-| Chromium-based browsers | ✅ 88   |
-| Firefox                 | ✅ 109  |
-| Opera                   | ✅ 74   |
+- [Development](DEVELOPMENT.md) — build, test, and release workflows
+- [Changelog](CHANGELOG.md) — version history
+- [Firefox beta signing](FIREFOX_BETA.md) — signing Firefox beta builds
+- [LLM agent rules](AGENTS.md) — AI-assisted development guidelines
