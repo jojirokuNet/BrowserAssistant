@@ -139,8 +139,6 @@ This software wouldn't have been possible without:
 
 - [React](https://github.com/facebook/react)
 - [MobX](https://github.com/mobxjs/mobx)
-- [Babel](https://github.com/babel/babel)
-- [Jest](https://github.com/facebook/jest)
 - and many more npm packages.
 
 For a full list of all `npm` packages in use, please take a look at

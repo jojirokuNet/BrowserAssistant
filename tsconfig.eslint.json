@@ -1,5 +1,12 @@
 {
     "extends": "./tsconfig.json",
+    "compilerOptions": {
+        // ESLint also lints the root-level JS tool configs (.eslintrc.js,
+        // constants.js, postcss.config.js); allowJs puts them into the
+        // parser's program. tsc --noEmit uses tsconfig.json directly and
+        // keeps type-checking TS sources only.
+        "allowJs": true
+    },
     "include": [
         ".eslintrc.js",
         "**/*"

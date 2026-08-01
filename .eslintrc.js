@@ -15,10 +15,24 @@ module.exports = {
             jsx: true,
         },
     },
+    overrides: [
+        {
+            files: ['scripts/**/*.ts', 'vitest.config.ts'],
+            settings: {
+                // The node resolver cannot resolve exports-only packages
+                // (no `main` field), e.g. @rspack/core, archiver, and
+                // vitest/config; the TypeScript resolver understands
+                // package.json `exports`. Scoped to build scripts and
+                // root tool configs so src/ lint output is unchanged.
+                'import/resolver': {
+                    typescript: {},
+                },
+            },
+        },
+    ],
     env: {
         browser: true,
         node: true,
-        jest: true,
     },
     rules: {
         indent: ['error', 4, { SwitchCase: 1 }],

@@ -10,7 +10,9 @@ ENV npm_config_store_dir=/pnpm-store
 # ============================================================================
 FROM base AS deps
 
-COPY package.json pnpm-lock.yaml ./
+# pnpm-workspace.yaml carries install-affecting settings (autoInstallPeers)
+# that must match the lockfile's recorded settings on --frozen-lockfile.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN --mount=type=cache,target=/pnpm-store,id=browser-assistant-pnpm \
     pnpm install \

@@ -3,9 +3,9 @@ import { program } from 'commander';
 import { Browser, BuildEnv } from '../consts';
 import { cliLog } from '../cli-log';
 import { createBuildVersion } from '../version-info/versionInfo';
-import { getWebpackConfig } from '../webpack';
+import { getRspackConfig } from '../rspack.config';
 
-import { bundleRunner } from './bundle-runner';
+import { bundleRspack } from './bundle-runner';
 
 type Task = (options: TaskOptions) => Promise<void> | void;
 
@@ -15,18 +15,18 @@ interface TaskOptions {
 
 export const bundle = () => {
     const bundleChrome: Task = (options: TaskOptions) => {
-        const webpackConfig = getWebpackConfig(Browser.Chrome, options.watch);
-        return bundleRunner(webpackConfig, options.watch);
+        const rspackConfig = getRspackConfig(Browser.Chrome, options.watch);
+        return bundleRspack(rspackConfig, options.watch ?? false, Browser.Chrome);
     };
 
     const bundleEdge: Task = (options: TaskOptions) => {
-        const webpackConfig = getWebpackConfig(Browser.Edge, options.watch);
-        return bundleRunner(webpackConfig, options.watch);
+        const rspackConfig = getRspackConfig(Browser.Edge, options.watch);
+        return bundleRspack(rspackConfig, options.watch ?? false, Browser.Edge);
     };
 
     const bundleFirefox: Task = (options: TaskOptions) => {
-        const webpackConfig = getWebpackConfig(Browser.Firefox, options.watch);
-        return bundleRunner(webpackConfig, options.watch);
+        const rspackConfig = getRspackConfig(Browser.Firefox, options.watch);
+        return bundleRspack(rspackConfig, options.watch ?? false, Browser.Firefox);
     };
 
     const devPlan = [

@@ -1,5 +1,12 @@
 # AG-54210
 # minimumReleaseAge is in minutes; 10080 = 7 days.
+packages: []
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - '@adguard/*'
+# Do not auto-install missing peer dependencies: the retained
+# css-loader/style-loader/string-replace-loader packages declare a
+# webpack peerDependency that pnpm would otherwise pull back into the
+# tree. The key must be camelCase here; the kebab-case form is
+# silently ignored by the resolver.
+autoInstallPeers: false

@@ -29,11 +29,12 @@ Builds will be located in the `build` directory.
 
 ## Lint
 
-- `pnpm lint`
+- `pnpm lint` — ESLint over the TypeScript sources plus the
+  `tsc --noEmit` strict type check
 
 ## Tests
 
-- `pnpm test`
+- `pnpm test` — runs the Vitest suites in `tests/`
 
 ## Localization
 
@@ -65,7 +66,7 @@ and text file containing current version, signs the Firefox build.
 
 ## How to debug without AdGuard application
 
-- Go to file `src/background/api/index.js` and read instructions
+- Go to file `src/background/api/index.ts` and read instructions
 
 - Whenever you need to change the API state, do it via the browser console
   from the background page (e.g., `hostData.appState.isProtectionEnabled = false` disables AdGuard protection).

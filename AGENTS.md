@@ -35,16 +35,16 @@ source of truth for all filtering state.
 
 ## Technical Context
 
-- **Language/Version**: JavaScript (ES2020+) and TypeScript 4.7, mixed
-  codebase (`allowJs`); transpiled by Babel to ES5; type-checked with
-  `tsc --noEmit` in strict mode
+- **Language/Version**: TypeScript 5.9, strict mode over
+  TypeScript-only sources; transpiled by SWC via rspack's builtin
+  swc-loader; type-checked with `tsc --noEmit`
 - **Primary Dependencies**: React 16.13, MobX 6 + mobx-react, react-intl,
   webextension-polyfill, @adguard/assistant (element-blocking overlay),
-  @adguard/translate; bundled with webpack 5
+  @adguard/translate; bundled with rspack (all targets)
 - **Storage**: `browser.storage.local` (settings, consent) wrapped by
   `src/background/storage/` and `src/background/settings/`; app state
   itself arrives from the desktop app over native messaging
-- **Testing**: Jest 25 (babel-jest via `babel.config.js`)
+- **Testing**: Vitest 4 (configured in `vitest.config.ts`)
 - **Target Platform**: Chrome/Edge 88+, Firefox 109+, Opera 74+
   (see `constants.js`); Manifest V3
 - **Project Type**: single project — browser extension
@@ -60,13 +60,14 @@ source of truth for all filtering state.
 ```text
 ├── package.json            # Scripts and dependencies (pnpm)
 ├── constants.js            # Minimum supported browser versions
-├── babel.config.js         # Babel presets; used by webpack and Jest
+├── vitest.config.ts        # Vitest configuration for the unit suites
 ├── tsconfig.json           # TypeScript config (type checking only)
 ├── .eslintrc.js            # ESLint: airbnb-typescript, 4-space indent
 ├── .twosky.json            # Translation service config (base locale: en)
 ├── Dockerfile              # CI build environment
 ├── bamboo-specs/           # Bamboo CI/CD pipeline specs
-├── scripts/                # Build tooling: webpack, manifests, CRX, translations
+├── scripts/                # Build tooling: rspack, manifests, CRX,
+                            # translations
 ├── metadata/               # Store listing text and screenshots
 ├── types/                  # Global TypeScript declarations
 ├── src/
@@ -79,15 +80,16 @@ source of truth for all filtering state.
 │   ├── popup/              # Browser action popup (React + MobX)
 │   ├── post-install/       # Post-install consent page (React)
 │   └── shared/             # Shared UI: global styles, TermsAgreement
-└── tests/                  # Jest tests mirroring the src/ structure
+└── tests/                  # Vitest suites mirroring the src/ structure
 ```
 
 ## Build And Test Commands
 
-- `pnpm dev` / `pnpm beta` / `pnpm release` — build the extension; append
-  a browser name to build one target (`chrome`, `firefox`, `edge`;
-  default is all); add `--watch` to rebuild on changes. Output: `build/`
-- `pnpm test` — run all Jest tests
+- `pnpm dev` / `pnpm beta` / `pnpm release` — build the extension with
+  rspack (all browser targets); append a browser name to build one
+  target (`chrome`, `firefox`, `edge`; default is all); add `--watch`
+  to rebuild on changes. Output: `build/`
+- `pnpm test` — run the unit suites with Vitest
 - `pnpm test:watch` — run tests in watch mode
 - `pnpm lint` — full static check (ESLint + TypeScript)
 - `pnpm lint:code` — ESLint only; `pnpm lint:code -- --fix` to autofix
@@ -134,7 +136,7 @@ Design for a browser extension:
   `scripting` in `scripts/manifest.common.json`) must not grow without
   justification.
 - Keep the extension lightweight — every added dependency increases the
-  webpack bundle and slows down the popup. Avoid bundling large
+  bundle size and slows down the popup. Avoid bundling large
   dependencies.
 - Separate concerns across the extension's contexts: `src/background/`
   owns long-lived logic and all state; content scripts only interact with
@@ -148,7 +150,7 @@ Design for a browser extension:
   in-memory variables.
 - Use message passing between extension contexts; never share mutable
   state directly. This project uses one-shot `runtime.sendMessage`
-  (routed by `src/background/messageHandler.js`) plus a long-lived port
+  (routed by `src/background/messageHandler.ts`) plus a long-lived port
   that pushes state updates to the popup
   (`src/background/longLivedMessageService/`).
 - React to browser events asynchronously; never block the main thread of
@@ -156,7 +158,7 @@ Design for a browser extension:
 - Design for updates — the extension may be updated while the user is
   active. Migrate stored data on update (see
   `src/background/migrationService/`) and handle version transitions
-  gracefully (`src/background/versions.js`).
+  gracefully (`src/background/versions.ts`).
 
 ### Architecture
 
@@ -166,24 +168,25 @@ Universal design principles:
   background = state and I/O, content scripts = page interaction,
   popup/options = rendering.
 - **Single Responsibility Principle** — every file, class, or function
-  has one reason to change (e.g. `state.js` owns app state,
-  `messageHandler.js` only routes messages).
+  has one reason to change (e.g. `state.ts` owns app state,
+  `messageHandler.ts` only routes messages).
 - **Dependency Direction** — dependencies point inward/downward: UI
   contexts depend on messaging contracts, the background never imports
   from UI layers, `src/lib/` imports from no other layer.
 - **Explicit Boundaries** — contexts interact through message contracts
-  (`src/lib/types.js`), not by reaching into each other's internals.
+  (`src/lib/types.ts`), not by reaching into each other's internals.
 - **Data Flow Clarity** — desktop app → background state → pushed to the
   popup over the long-lived port; user actions → one-shot messages →
   background → desktop app.
 - **Minimize Coupling, Maximize Cohesion** — each context is a separate
-  webpack entry with its own MobX stores; shared code lives only in
+  bundler entry with its own MobX stores; shared code lives only in
   `src/lib/` and `src/shared/`.
 - **Make Invalid States Impossible** — less enforced today: the codebase
-  is mixed JS/TS, so rely on strict type checking and validation at
-  messaging boundaries instead of types alone.
+  is fully typed under strict mode, but data crossing the
+  messaging boundaries is untyped at runtime — validate it there instead
+  of trusting types alone.
 - **Observability Built-in** — less critical in an extension (no backend
-  metrics), but all contexts still log through `src/lib/logger.js`
+  metrics), but all contexts still log through `src/lib/logger.ts`
   instead of `console`.
 - **Keep It Boring** — prefer well-understood patterns (MobX stores,
   switch-based message routing) over clever or novel solutions.
@@ -193,9 +196,9 @@ Layers, from top to bottom:
 | Layer | Responsibility | Examples |
 | --- | --- | --- |
 | UI contexts | Render UI, send user intents via messaging | `src/popup/`, `src/options-ui/` |
-| Content scripts | Page interaction, assistant overlay | `src/content-scripts/start-assistant.js` |
-| Background | Owns app state, routes messages, persists settings | `src/background/state.js`, `src/background/messageHandler.js` |
-| Native host API | Native messaging transport to the desktop app | `src/background/api/nativeHostApi.js` |
+| Content scripts | Page interaction, assistant overlay | `src/content-scripts/start-assistant.ts` |
+| Background | Owns app state, routes messages, persists settings | `src/background/state.ts`, `src/background/messageHandler.ts` |
+| Native host API | Native messaging transport to the desktop app | `src/background/api/nativeHostApi.ts` |
 | Shared utilities | Leaf helpers usable by any layer | `src/lib/`, `src/shared/` |
 
 ```text
@@ -216,11 +219,11 @@ modules. `src/lib/` must stay a leaf.
 
 **Known exclusions** (to be fixed):
 
-- `src/background/state.js` imports `PROTOCOLS` from
+- `src/background/state.ts` imports `PROTOCOLS` from
   `../popup/stores/consts` — a reverse dependency from the background
   into the popup layer; the constant should move to `src/lib/`.
-- `src/background/localStorage.js` is a dead no-op wrapper (marked with a
-  TODO) still referenced by `updateService.js`.
+- `src/background/localStorage.ts` is a dead no-op wrapper (marked with a
+  TODO) still referenced by `updateService.ts`.
 
 ### Code Quality
 
@@ -236,28 +239,28 @@ modules. `src/lib/` must stay a leaf.
 - Use JSDoc comments for non-obvious functions and exported constants
   (see `constants.js`); comment intent, not mechanics.
 - Error handling: normalize unknown caught errors with `getErrorMessage`
-  from `src/lib/errors.ts`; log errors via `src/lib/logger.js` rather
+  from `src/lib/errors.ts`; log errors via `src/lib/logger.ts` rather
   than `console`.
-- Naming: files use camelCase (`messageHandler.js`); classes and React
-  components use PascalCase (`TabsService.js`, `SettingsStore.js`); test
-  files use the `*.test.js` suffix.
-- JavaScript and TypeScript coexist and are both type-checked
-  (`allowJs`); when editing a module, match the language and style of the
-  surrounding code.
+- Naming: files use camelCase (`messageHandler.ts`); classes and React
+  components use PascalCase (`TabsService.ts`, `SettingsStore.ts`); test
+  files use the `*.test.ts` suffix.
+- All first-party sources are TypeScript; only root-level tool configs
+  (`.eslintrc.js`, `postcss.config.js`, `constants.js`) remain
+  JavaScript. Match the style of the surrounding code.
 
 ### Testing
 
-- Framework: Jest 25 with babel-jest; there is no Jest config file — the
-  Babel configuration in `babel.config.js` applies.
+- Framework: Vitest 4, configured in `vitest.config.ts` (node
+  environment, globals disabled — suites import `describe`/`it`/`expect`
+  from `vitest`).
 - Tests live in `tests/` and mirror the `src/` structure; name files
-  `*.test.js` (e.g. `tests/background/state.test.js` tests
-  `src/background/state.js`).
-- Mock browser APIs with `jest.mock('webextension-polyfill', ...)`; mock
+  `*.test.ts` (e.g. `tests/background/state.test.ts` tests
+  `src/background/state.ts`).
+- Mock browser APIs with `vi.mock('webextension-polyfill', ...)`; mock
   module-level collaborators (`log`, `notifier`, `nanoid`, `consent`) at
-  the module boundary — follow the pattern of the existing background
-  tests.
-- Coverage is currently concentrated on background logic and `src/lib/`
-  helpers; when changing stores or background modules, add or update
+  the module boundary, importing `vi` from `vitest`.
+- Coverage is currently limited to `src/lib/` helpers and locale
+  resolution; when changing stores or background modules, add or update
   tests in `tests/`.
 - All tests must pass before pushing — the `pre-push` husky hook runs
   `pnpm test`.
@@ -362,9 +365,9 @@ humans and AI agents that consume project documentation.
 
 ### Other
 
-- Commit messages are prefixed with the Jira issue key (e.g.
-  `AG-53631: Add docker build to browser-assistant`); automated version
-  bumps use `skipci: Automatic increment build number`.
+- Commit messages are prefixed with the Jira issue key, with no colon
+  after it (e.g. `AG-53631 Add docker build to browser-assistant`);
+  automated version bumps use `skipci: Automatic increment build number`.
 - Husky hooks: `pre-commit` runs `pnpm lint`, `pre-push` runs
   `pnpm test`.
 - Localization workflow: edit only the base locale

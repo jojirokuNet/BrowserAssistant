@@ -1,28 +1,27 @@
-import webpack, { Stats, Configuration } from 'webpack';
+import { rspack } from '@rspack/core';
+import type { Configuration as RspackConfiguration } from '@rspack/core';
 
 import { cliLog } from '../cli-log';
 
-declare interface CallbackFunction<T> {
-    (err?: Error, result?: T): any;
-}
+import { createArchive } from './archive';
 
-export const bundleRunner = (webpackConfig: Configuration, watch = false) => {
-    const compiler = webpack(webpackConfig);
+export const bundleRspack = (
+    rspackConfig: RspackConfiguration,
+    watch: boolean,
+    browser: string,
+): Promise<void> => {
+    const compiler = rspack(rspackConfig);
 
     const run = watch
-        // @ts-ignore
-        ? (cb: CallbackFunction<Stats>) => compiler.watch({}, cb)
-        // @ts-ignore
-        : (cb: CallbackFunction<Stats>) => compiler.run(cb);
+        ? (cb: (err?: Error | null, stats?: any) => void) => compiler.watch({}, cb)
+        : (cb: (err?: Error | null, stats?: any) => void) => compiler.run(cb);
 
     return new Promise<void>((resolve, reject) => {
-        run((err, stats) => {
+        run((err: Error | null | undefined, stats: any) => {
             if (err) {
                 cliLog.error(err.stack || err.message || err.name);
-                // @ts-ignore
-                if (err.details) {
-                    // @ts-ignore
-                    cliLog.error(err.details);
+                if ((err as any).details) {
+                    cliLog.error((err as any).details);
                 }
                 reject();
                 return;
@@ -46,11 +45,23 @@ export const bundleRunner = (webpackConfig: Configuration, watch = false) => {
             }
 
             cliLog.info(stats.toString({
-                chunks: false, // Makes the build much quieter
-                colors: true, // Shows colors in the console
+                chunks: false,
+                colors: true,
             }));
 
-            resolve();
+            // Create zip archive for non-watch builds (matches webpack
+            // ZipWebpackPlugin behavior).
+            if (!watch) {
+                const outputPath = (rspackConfig.output?.path) as string;
+                createArchive(outputPath, browser)
+                    .then(resolve)
+                    .catch((archiveErr: Error) => {
+                        cliLog.error(`Archive failed: ${archiveErr.message}`);
+                        reject();
+                    });
+            } else {
+                resolve();
+            }
         });
     });
 };
