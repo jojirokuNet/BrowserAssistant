@@ -14,7 +14,6 @@ import {
 } from '../lib/helpers';
 import { PROTOCOLS } from '../lib/consts';
 import { log } from '../lib/logger';
-import type { PreparedTab } from '../lib/tabs';
 
 import versions from './versions';
 import { Api } from './api';
@@ -54,7 +53,11 @@ interface UrlInfo {
     isHttpsFilteringEnabled: boolean;
     isFilteringEnabled: boolean;
     isSecured: boolean;
-    canChangeFilteringStatus: boolean;
+    canChangeFilteringStatus: boolean | null;
+}
+
+interface SetAppStateOptions {
+    notifyFilteringFeedback?: boolean;
 }
 
 /**
@@ -145,47 +148,27 @@ class State {
     api!: InstanceType<typeof Api>;
 
     /**
-     * Sets whether HTTPS filtering is enabled for the current url.
-     * @param isHttpsFilteringEnabled Whether HTTPS filtering is enabled.
+     * Commits filtering data after the caller confirms that the tab is focused.
+     * @param url Url whose filtering data was requested.
+     * @param parameters Filtering data returned by the native host.
      */
-    set isHttpsFilteringEnabled(isHttpsFilteringEnabled: boolean) {
-        this.urlInfo.isHttpsFilteringEnabled = isHttpsFilteringEnabled;
-    }
+    setUrlInfo = (
+        url: string | undefined,
+        parameters?: Partial<UrlInfo> | null,
+    ): void => {
+        const {
+            isFilteringEnabled = this.urlInfo.isFilteringEnabled,
+            isHttpsFilteringEnabled = this.urlInfo.isHttpsFilteringEnabled,
+            canChangeFilteringStatus = this.urlInfo.canChangeFilteringStatus,
+        } = parameters || {};
+        const { protocol } = getUrlProps(url as string);
 
-    /**
-     * Sets whether filtering is enabled for the current url.
-     * @param isFilteringEnabled Whether filtering is enabled.
-     */
-    set isFilteringEnabled(isFilteringEnabled: boolean) {
-        this.urlInfo.isFilteringEnabled = isFilteringEnabled;
-    }
-
-    /**
-     * Sets whether the current url is secured.
-     * @param isSecured Whether the current url is secured.
-     */
-    set isSecured(isSecured: boolean) {
-        this.urlInfo.isSecured = isSecured;
-    }
-
-    /**
-     * Sets whether the filtering status can be changed for the current url.
-     * @param canChangeFilteringStatus Whether the filtering status can be changed.
-     */
-    set canChangeFilteringStatus(canChangeFilteringStatus: boolean) {
-        this.urlInfo.canChangeFilteringStatus = canChangeFilteringStatus;
-    }
-
-    /**
-     * Updates the secured flag of the current url.
-     * @param currentUrl Url to update the flag for.
-     */
-    updateSecured = (currentUrl: string | undefined): void => {
-        // The cast keeps today's runtime unchanged: invalid or missing
-        // input flows through getUrlProps exactly as before.
-        const { protocol } = getUrlProps(currentUrl as string);
-
-        this.isSecured = getFormattedProtocol(protocol) === PROTOCOLS.SECURED;
+        this.urlInfo = {
+            isFilteringEnabled,
+            isHttpsFilteringEnabled,
+            isSecured: getFormattedProtocol(protocol) === PROTOCOLS.SECURED,
+            canChangeFilteringStatus,
+        };
     };
 
     /**
@@ -212,7 +195,7 @@ class State {
             return;
         }
 
-        this.setAppState(message.appState);
+        this.setAppState(message.appState, { notifyFilteringFeedback: true });
     };
 
     /**
@@ -248,11 +231,15 @@ class State {
     }
 
     /**
-     * Validates app state, sets app state and notifies external modules that state has changed.
+     * Validates app state, stores it, and notifies consumers about relevant changes.
      * @param appState App state received from the native host.
+     * @param options Controls handling of feedback commands from unsolicited messages.
      * @throws When one of the required app state flags is not defined.
      */
-    setAppState = (appState: Partial<AppState> = {}): void => {
+    setAppState = (
+        appState: Partial<AppState> = {},
+        { notifyFilteringFeedback = false }: SetAppStateOptions = {},
+    ): void => {
         const {
             isInstalled,
             isRunning,
@@ -299,15 +286,17 @@ class State {
             nextAppState.isAuthorized = isAuthorized;
         }
 
-        const appStateChanged = !isEqual(this.appState, nextAppState);
+        // feedbackAction is a command, not application state.
+        const appStateChanged = !isEqual(
+            { ...this.appState, feedbackAction },
+            nextAppState,
+        );
+        this.appState = nextAppState;
 
-        if (appStateChanged) {
-            this.appState = { ...this.appState, ...nextAppState };
-        }
+        const shouldHandleFilteringFeedback = notifyFilteringFeedback
+            && feedbackAction === FEEDBACK_ACTIONS.UPDATE_FILTERING_STATUS;
 
-        // Notify modules only when appState changes or feedbackAction asks
-        // to update filtering state
-        if (appStateChanged || feedbackAction === FEEDBACK_ACTIONS.UPDATE_FILTERING_STATUS) {
+        if (appStateChanged || shouldHandleFilteringFeedback) {
             this.notifyModules();
         }
     };
@@ -318,14 +307,12 @@ class State {
     NOTIFY_TIMEOUT_MS = 40;
 
     /**
-     * Notifies modules about state changes
+     * Notifies modules about state changes.
      * Throttle function, so we can call it whenever we want.
      */
-    notifyModules = throttle(async (tab?: PreparedTab): Promise<void> => {
-        // Notify browser action tab about changed state
-        notifier.notifyListeners(notifier.types.STATE_UPDATED, tab);
+    notifyModules = throttle((): void => {
+        notifier.notifyListeners(notifier.types.STATE_UPDATED);
 
-        // Notify popup about changed state
         longLivedMessageService.notifyPopupStateUpdated(
             this.getAppState(),
             this.getUpdateStatusInfo(),
@@ -392,7 +379,6 @@ class State {
      */
     getCurrentFilteringState = async (tab?: { url?: string }, forceStart = false): Promise<any> => {
         const url = tab?.url;
-        this.updateSecured(url);
 
         // Do not send empty urls or non http urls, see - AG-2360, except for forceStart
         if (!forceStart && !(url && isHttp(url))) {
@@ -409,20 +395,13 @@ class State {
         if (!parameters) {
             return null;
         }
-        const {
-            isFilteringEnabled,
-            isHttpsFilteringEnabled,
-        } = parameters;
 
         let { canChangeFilteringStatus } = parameters;
 
         this.setAppState(appState);
-        this.isFilteringEnabled = isFilteringEnabled;
-        this.isHttpsFilteringEnabled = isHttpsFilteringEnabled;
         if (canChangeFilteringStatus === undefined) {
             canChangeFilteringStatus = true; // by default consider that this flag is true
         }
-        this.canChangeFilteringStatus = canChangeFilteringStatus;
 
         return { ...parameters, canChangeFilteringStatus };
     };
@@ -460,7 +439,7 @@ class State {
         url: string | undefined,
     ): Promise<void> => {
         this.isEnabled = isEnabled;
-        this.isHttpsFilteringEnabled = isHttpsEnabled;
+        this.urlInfo.isHttpsFilteringEnabled = isHttpsEnabled;
 
         const response = await this.api.setFilteringStatus(
             isEnabled,

@@ -52,7 +52,7 @@ export default class AbstractApi {
     async initModule(
         nativeHostMessagesHandler: MessageListener,
         initMessageHandler: InitMessageHandler,
-    ): Promise<void> {
+    ): Promise<unknown> {
         throw notImplemented('initModule');
     }
 
@@ -96,7 +96,7 @@ export default class AbstractApi {
      * Connect to the native host.
      * @throws When the method is not implemented.
      */
-    connect = async (): Promise<void> => {
+    connect = async (): Promise<unknown> => {
         throw notImplemented('connect');
     };
 
@@ -121,7 +121,7 @@ export default class AbstractApi {
      * Reconnect to the native host.
      * @throws When the method is not implemented.
      */
-    reconnect = async (): Promise<void> => {
+    reconnect = async (): Promise<unknown> => {
         throw notImplemented('reconnect');
     };
 
