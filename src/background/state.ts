@@ -12,7 +12,7 @@ import {
     getUrlProps,
     isHttp,
 } from '../lib/helpers';
-import { PROTOCOLS } from '../popup/stores/consts';
+import { PROTOCOLS } from '../lib/consts';
 import { log } from '../lib/logger';
 import type { PreparedTab } from '../lib/tabs';
 

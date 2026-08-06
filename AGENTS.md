@@ -220,9 +220,6 @@ modules. `src/lib/` must stay a leaf.
 
 **Known exclusions** (to be fixed):
 
-- `src/background/state.ts` imports `PROTOCOLS` from
-  `../popup/stores/consts` — a reverse dependency from the background
-  into the popup layer; the constant should move to `src/lib/`.
 - `src/background/localStorage.ts` is a dead no-op wrapper (marked with a
   TODO) still referenced by `updateService.ts`.
 

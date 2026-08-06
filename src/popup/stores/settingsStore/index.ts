@@ -9,14 +9,11 @@ import {
     runInAction,
 } from 'mobx';
 
-import {
-    ORIGINAL_CERT_STATUS,
-    PROTOCOLS,
-    SWITCHER_TRANSITION_TIME,
-} from '../consts';
+import { ORIGINAL_CERT_STATUS, SWITCHER_TRANSITION_TIME } from '../consts';
 import {
     DOWNLOAD_LINK,
     EXTENSION_DOWNLOAD_LINK,
+    PROTOCOLS,
     SUPPORT_LINK,
 } from '../../../lib/consts';
 import { tabs, type PreparedTab } from '../../../lib/tabs';

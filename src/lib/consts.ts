@@ -16,6 +16,18 @@ export const DESKTOP_APPS_URL = 'https://link.adtidy.org/forward.html?action=des
 
 export const CONTENT_SCRIPT_NAME = 'content-scripts.js';
 
+export const PROTOCOL_TO_PORT_MAP = {
+    HTTPS: 443,
+    HTTP: 80,
+    SECURED: 0,
+};
+
+export const PROTOCOLS = {
+    HTTPS: 'HTTPS',
+    HTTP: 'HTTP',
+    SECURED: 'SECURED',
+};
+
 // These urls are updated during the extension build by the
 // string-replace loader in scripts/rspack.config.ts
 export const UPDATE_URL_FIREFOX = '{{UPDATE_URL_FIREFOX}}';

@@ -1,11 +1,7 @@
 /**
  * @file Constants shared by the popup stores.
  */
-export const PROTOCOL_TO_PORT_MAP = {
-    HTTPS: 443,
-    HTTP: 80,
-    SECURED: 0,
-};
+import { PROTOCOLS } from '../../lib/consts';
 
 export const ORIGINAL_CERT_STATUS = {
     VALID: 'VALID',
@@ -62,12 +58,6 @@ export const EVENT_TYPE_TO_MODAL_STATE_MAP: Record<string, ModalState> = {
     blur: { [MODAL_STATES_NAMES.isFocused]: false },
     keydown: { [MODAL_STATES_NAMES.isEntered]: true },
     mousedown: { [MODAL_STATES_NAMES.isClicked]: true },
-};
-
-export const PROTOCOLS = {
-    HTTPS: 'HTTPS',
-    HTTP: 'HTTP',
-    SECURED: 'SECURED',
 };
 
 export const HTTP_FILTERING_STATUS = {

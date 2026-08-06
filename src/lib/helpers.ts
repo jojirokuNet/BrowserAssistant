@@ -1,7 +1,7 @@
 /**
  * @file Utility helpers shared across the extension contexts.
  */
-import { PROTOCOLS, PROTOCOL_TO_PORT_MAP } from '../popup/stores/consts';
+import { PROTOCOLS, PROTOCOL_TO_PORT_MAP } from './consts';
 
 type Protocol = 'HTTPS' | 'HTTP' | 'SECURED';
 
@@ -141,4 +141,3 @@ export const compareSemver = (a: string, b: string): -1 | 0 | 1 => {
     }
     return 0;
 };
-

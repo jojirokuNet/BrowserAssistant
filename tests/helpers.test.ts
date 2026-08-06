@@ -4,7 +4,44 @@ import {
     it,
 } from 'vitest';
 
-import { checkSomeIsTrue, compareSemver } from '../src/lib/helpers';
+import {
+    checkSomeIsTrue,
+    compareSemver,
+    getFormattedPort,
+    getFormattedProtocol,
+    getUrlProps,
+} from '../src/lib/helpers';
+
+describe('protocol helpers', () => {
+    it('formats HTTP and HTTPS protocols', () => {
+        expect(getFormattedProtocol('http:')).toBe('HTTP');
+        expect(getFormattedProtocol('https:')).toBe('HTTPS');
+    });
+
+    it('classifies extension and non-web pages as secured', () => {
+        expect(getFormattedProtocol('chrome-extension:')).toBe('SECURED');
+        expect(getFormattedProtocol('moz-extension:')).toBe('SECURED');
+        expect(getFormattedProtocol('file:')).toBe('SECURED');
+    });
+
+    it('maps protocols to their default ports', () => {
+        expect(getFormattedPort('', 'HTTP')).toBe(80);
+        expect(getFormattedPort('', 'HTTPS')).toBe(443);
+        expect(getFormattedPort('', 'SECURED')).toBe(0);
+    });
+
+    it('preserves an explicit port', () => {
+        expect(getFormattedPort('8443', 'HTTPS')).toBe(8443);
+    });
+
+    it('extracts URL properties using the protocol defaults', () => {
+        expect(getUrlProps('https://example.com/path')).toEqual({
+            hostname: 'example.com',
+            port: 443,
+            protocol: 'https:',
+        });
+    });
+});
 
 describe('checkSomeIsTrue', () => {
     it('should return true if at least one value is true', () => {
