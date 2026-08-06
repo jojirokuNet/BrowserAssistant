@@ -1,3 +1,6 @@
+/**
+ * @file Exports the current site filtering view.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 

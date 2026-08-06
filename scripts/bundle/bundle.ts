@@ -1,3 +1,6 @@
+/**
+ * @file Defines the bundle CLI command that builds the extension.
+ */
 import { program } from 'commander';
 
 import { Browser, BuildEnv } from '../consts';

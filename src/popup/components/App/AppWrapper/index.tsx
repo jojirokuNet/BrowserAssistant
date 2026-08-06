@@ -1,3 +1,6 @@
+/**
+ * @file Exports the app wrapper component of the popup.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 

@@ -1,3 +1,6 @@
+/**
+ * @file Vitest configuration for the unit test suites.
+ */
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({

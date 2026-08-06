@@ -1,3 +1,6 @@
+/**
+ * @file Browser action API supporting both MV2 and MV3.
+ */
 import browser from 'webextension-polyfill';
 
 // This for support mv3 and mv2

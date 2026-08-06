@@ -1,3 +1,6 @@
+/**
+ * @file Exports the options section of the popup.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 
@@ -65,7 +68,7 @@ const Options = observer(() => {
                 /**
                  *  Extension loses activeTab permission after page reload in Firefox,
                  *  so user should open popup to allow content script injection.
-                 *  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions#activetab_permission
+                 *  Https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions#activetab_permission.
                  */
                 window.close();
             },

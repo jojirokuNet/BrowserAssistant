@@ -1,3 +1,6 @@
+/**
+ * @file Shared i18n instance for the current browser locale.
+ */
 import browser from 'webextension-polyfill';
 
 import type { I18nInterface } from '@adguard/translate';

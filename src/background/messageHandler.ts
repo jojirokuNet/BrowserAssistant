@@ -1,3 +1,6 @@
+/**
+ * @file Routes one-shot messages between extension contexts and the host.
+ */
 import browser from 'webextension-polyfill';
 
 import {
@@ -16,7 +19,7 @@ import { consent } from './consent';
 import { settings } from './settings';
 
 /**
- * Message received from the UI contexts and content scripts
+ * Message received from the UI contexts and content scripts.
  */
 interface IncomingMessage {
     type: string;
@@ -24,7 +27,11 @@ interface IncomingMessage {
 }
 
 /**
- * Handles incoming messages to the background page
+ * Handles incoming messages to the background page.
+ * @param message Message received from the UI contexts.
+ * @returns Result of the handled message, when the message type produces
+ * one.
+ * @throws When an unknown message type is received.
  */
 // eslint-disable-next-line consistent-return
 export const messageHandler = async (message: IncomingMessage): Promise<any> => {

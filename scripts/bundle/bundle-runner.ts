@@ -1,3 +1,6 @@
+/**
+ * @file Runs the rspack build and archives the output for the target browser.
+ */
 import { rspack } from '@rspack/core';
 import type { Configuration as RspackConfiguration } from '@rspack/core';
 

@@ -1,3 +1,6 @@
+/**
+ * @file Handles user actions from the popup and forwards them to the host.
+ */
 import browser from 'webextension-polyfill';
 
 import { log } from '../lib/logger';
@@ -17,11 +20,9 @@ const setIcon = async (details: SetIconDetailsType) => {
 };
 
 /**
- * Sets icon enabled. In order to remove blinking, we set the icon twice:
- * 1. for general browser action
- * 2. for tab browser action if tabId is provided
- * @param {number} [tabId]
- * @returns {Promise<void>}
+ * Sets the enabled icon, twice: once for the general browser action and
+ * once for the tab browser action when a tab id is provided.
+ * @param tabId Tab to show the enabled icon on.
  */
 const setIconEnabled = async (tabId: number) => {
     const details: SetIconDetailsType = { path: Prefs.ICONS.ENABLED };
@@ -33,11 +34,9 @@ const setIconEnabled = async (tabId: number) => {
 };
 
 /**
- * Sets browser cation icon disabled. In order to remove blinking, we set the icon twice:
- * 1. for general browser action
- * 2. for tab browser action if tabId is provided
- * @param {number} [tabId]
- * @returns {Promise<void>}
+ * Sets the disabled icon, twice: once for the general browser action and
+ * once for the tab browser action when a tab id is provided.
+ * @param tabId Tab to show the disabled icon on.
  */
 const setIconDisabled = async (tabId: number) => {
     const details: SetIconDetailsType = { path: Prefs.ICONS.DISABLED };

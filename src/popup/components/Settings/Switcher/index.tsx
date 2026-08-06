@@ -1,3 +1,6 @@
+/**
+ * @file Exports the settings switcher component.
+ */
 import React, { useContext } from 'react';
 
 import classNames from 'classnames';

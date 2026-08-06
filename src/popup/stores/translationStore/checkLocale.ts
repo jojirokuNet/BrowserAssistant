@@ -1,3 +1,6 @@
+/**
+ * @file Locale check helpers for the translation store.
+ */
 export type CheckLocaleResult =
     | { suitable: true; locale: string }
     | { suitable: false; locale: string | null };
@@ -13,6 +16,9 @@ const checkPartialKeyMatch = (keysToCheck: string[], key: string): string | unde
  * Accepts a null locale (the store's initial value); the failed result
  * then carries it through unchanged. The result is a discriminated
  * union, so reading `locale` after a `suitable` guard yields a string.
+ * @param messagesMap Map of the available locale messages.
+ * @param locale Locale to look up.
+ * @returns The suitable locale result.
  */
 const checkLocale = (
     messagesMap: Record<string, unknown>,

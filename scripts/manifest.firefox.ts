@@ -1,3 +1,6 @@
+/**
+ * @file Firefox extension manifest template.
+ */
 import { Manifest } from 'webextension-polyfill';
 
 import { MIN_SUPPORTED_VERSION } from '../constants';

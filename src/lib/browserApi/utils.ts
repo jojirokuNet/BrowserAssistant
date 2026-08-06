@@ -1,3 +1,6 @@
+/**
+ * @file Detects the browser the extension runs in.
+ */
 import browser from 'webextension-polyfill';
 
 import { lazyGet } from '../helpers';
@@ -39,6 +42,7 @@ export const utils: Utils = {
 
     /**
      * Method to detect if browser is vivaldi.
+     * @returns Promise resolved with whether the browser is vivaldi.
      */
     async isVivaldiBrowser() {
         if (this.isVivaldiPromise === undefined) {

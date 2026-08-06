@@ -1,3 +1,6 @@
+/**
+ * @file Exports the certificate status modal.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 import Modal from 'react-modal';

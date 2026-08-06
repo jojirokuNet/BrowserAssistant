@@ -1,3 +1,6 @@
+/**
+ * @file Exports the closed app view component.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 

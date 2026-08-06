@@ -1,3 +1,6 @@
+/**
+ * @file Migrates stored data between extension versions.
+ */
 import { compare } from 'compare-versions';
 
 import { localStorage } from '../localStorage';
@@ -10,7 +13,14 @@ import { APP_VERSION_KEY } from '../../lib/types';
 const FIREFOX_CONSENT_MIGRATION_VERSION = '1.2.2';
 const STORAGE_DATA_MIGRATION_VERSION = '1.3.15';
 
+/**
+ * Migrates stored data when the extension updates to a newer version.
+ */
 export class MigrationService {
+    /**
+     * Runs the storage migrations required between the previous and current version.
+     * @param previousVersion Previously stored extension version.
+     */
     async migrate(previousVersion: string | undefined) {
         // consent setting moved from local storage to
         // browser storage after version 1.2.2 in firefox only
@@ -27,7 +37,7 @@ export class MigrationService {
     }
 
     /**
-     * Migration from local storage to browser storage
+     * Migration from local storage to browser storage.
      */
     storageMigrationForFirefox = async () => {
         // The consent key exists only on the Firefox implementation (it

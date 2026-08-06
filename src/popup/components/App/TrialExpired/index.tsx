@@ -1,3 +1,6 @@
+/**
+ * @file Exports the trial expired notice view.
+ */
 import React from 'react';
 
 import { translator } from '../../../../shared/translators/translator';

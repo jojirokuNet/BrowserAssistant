@@ -1,3 +1,6 @@
+/**
+ * @file Packs the Chromium build into a signed CRX archive.
+ */
 /* eslint-disable no-console */
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -56,10 +59,10 @@ const getPrivateKey = async () => {
 };
 
 /**
- * Writes additionalProps to the chromeManifest
- *
- * @param chromeManifest {object}
- * @param [additionalProps] {object} - props to add in manifest
+ * Writes additionalProps to the chromeManifest.
+ * @param chromeManifest Manifest to update.
+ * @param additionalProps Props to add in the manifest.
+ * @throws When the manifest cannot be read or written.
  */
 const updateChromeManifest = async (chromeManifest: Buffer, additionalProps?: Partial<Manifest>) => {
     try {

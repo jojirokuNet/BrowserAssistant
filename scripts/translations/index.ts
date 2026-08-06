@@ -1,3 +1,6 @@
+/**
+ * @file Command entry point of the translation scripts.
+ */
 import { program } from 'commander';
 
 import { getErrorMessage } from '../../src/lib/errors';

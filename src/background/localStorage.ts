@@ -1,3 +1,6 @@
+/**
+ * @file No-op localStorage mock kept for the migration service.
+ */
 // TODO remove local storage because there is no localStorage in the service worker
 // Make it after a few versions after 1.4 released
 
@@ -19,24 +22,35 @@ const localStorageMock: StorageMock = {
 
 /**
  * Wrapper around localStorage api
- * Used to set and get data from the storage
+ * Used to set and get data from the storage.
  */
 class LocalStorage {
+    /**
+     * In-memory storage mock wrapped by this class.
+     */
     storage: StorageMock;
 
+    /**
+     * Creates the wrapper around the in-memory storage mock.
+     */
     constructor() {
         this.storage = localStorageMock;
     }
 
     /**
-     * Saves data in the storage by key
+     * Saves data in the storage by key.
+     * @param key Key to save the data under.
+     * @param data Data to save.
+     * @returns Result of the storage operation.
      */
     set(key: string, data: string) {
         return this.storage.setItem(key, data);
     }
 
     /**
-     * Returns data from the storage by key
+     * Returns data from the storage by key.
+     * @param key Key to read the data by.
+     * @returns Data stored under the key.
      */
     get(key: string) {
         return this.storage.getItem(key);

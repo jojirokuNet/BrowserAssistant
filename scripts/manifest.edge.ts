@@ -1,3 +1,6 @@
+/**
+ * @file Edge extension manifest template.
+ */
 import { MIN_SUPPORTED_VERSION } from '../constants';
 
 module.exports = {

@@ -1,3 +1,6 @@
+/**
+ * @file Uploads the base locale to the translation service.
+ */
 import fs from 'fs';
 import path from 'path';
 
@@ -19,8 +22,9 @@ const API_UPLOAD_URL = `${API_URL}/upload`;
 const LOCALES_DIR = path.resolve(__dirname, LOCALES_RELATIVE_PATH);
 
 /**
- * Build form data for uploading translation
- * @param filePath path to the base locale messages file
+ * Builds the form data for uploading a translation.
+ * @param filePath Path to the base locale messages file.
+ * @returns The form data ready to be sent to the upload endpoint.
  */
 const getFormData = (filePath: string): FormData => {
     const formData = new FormData();
@@ -35,7 +39,9 @@ const getFormData = (filePath: string): FormData => {
 };
 
 /**
- * Entry point for uploading translations
+ * Entry point for uploading the base locale translations.
+ * @returns The response data of the upload request.
+ * @throws When the upload request fails.
  */
 export const uploadBaseLocale = async (): Promise<unknown> => {
     const filePath = path.join(LOCALES_DIR, BASE_LOCALE, LOCALE_DATA_FILENAME);

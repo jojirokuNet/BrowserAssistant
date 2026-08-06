@@ -1,3 +1,6 @@
+/**
+ * @file Creates the version info file with build and version data.
+ */
 /* eslint-disable no-console */
 import { promises as fs } from 'fs';
 import path from 'path';

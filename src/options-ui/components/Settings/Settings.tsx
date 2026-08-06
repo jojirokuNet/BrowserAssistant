@@ -1,3 +1,6 @@
+/**
+ * @file Settings view of the options page.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 

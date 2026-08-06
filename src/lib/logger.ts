@@ -1,3 +1,6 @@
+/**
+ * @file Logging helper writing level-filtered messages to the console.
+ */
 // TODO switch to a less verbose level later
 const CURRENT_LEVEL = 'DEBUG';
 

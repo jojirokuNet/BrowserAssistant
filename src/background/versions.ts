@@ -1,3 +1,6 @@
+/**
+ * @file Extension and API versions read from the package.json.
+ */
 import config from '../../package.json';
 
 const versions = {

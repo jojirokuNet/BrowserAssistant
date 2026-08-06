@@ -1,3 +1,6 @@
+/**
+ * @file Writes the update.json manifest for Firefox beta builds.
+ */
 /* eslint-disable no-console */
 
 import path from 'path';

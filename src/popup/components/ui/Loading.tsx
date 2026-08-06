@@ -1,3 +1,6 @@
+/**
+ * @file Loading spinner component of the popup.
+ */
 import React from 'react';
 
 import './Loading.pcss';

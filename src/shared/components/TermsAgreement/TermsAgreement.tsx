@@ -1,3 +1,6 @@
+/**
+ * @file React component collecting user consent to the terms.
+ */
 import React from 'react';
 
 import cn from 'classnames';

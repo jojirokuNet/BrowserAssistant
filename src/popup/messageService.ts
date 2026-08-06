@@ -1,3 +1,6 @@
+/**
+ * @file Sends one-shot messages to the background and awaits responses.
+ */
 import browser from 'webextension-polyfill';
 import { nanoid } from 'nanoid';
 
@@ -131,7 +134,9 @@ export const messagesSender = {
 };
 
 /**
- * Creates long lived connection between popup and background page
+ * Creates long lived connection between popup and background page.
+ * @param rootStore Root store of the popup.
+ * @returns Function that closes the connection.
  */
 export const createLongLivedConnection = (rootStore: RootStore): (() => void) => {
     const { settingsStore } = rootStore;
@@ -160,14 +165,14 @@ export const createLongLivedConnection = (rootStore: RootStore): (() => void) =>
             }
             case POPUP_MESSAGES.UPDATE_FILTERING_PAUSE_TIMEOUT: {
                 const { currentTabHostname } = settingsStore;
-                const filteringPauseTimeout = message.data.filteringPauseMap[currentTabHostname];
+                const filteringPauseTimeoutMs = message.data.filteringPauseMap[currentTabHostname];
 
-                if (filteringPauseTimeout === undefined) {
+                if (filteringPauseTimeoutMs === undefined) {
                     break;
                 }
 
-                if (filteringPauseTimeout >= 0) {
-                    await settingsStore.setFilteringPauseTimeout(filteringPauseTimeout);
+                if (filteringPauseTimeoutMs >= 0) {
+                    await settingsStore.setFilteringPauseTimeoutMs(filteringPauseTimeoutMs);
                 } else {
                     await settingsStore.updatePopupData();
                 }

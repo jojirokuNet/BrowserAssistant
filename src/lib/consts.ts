@@ -4,6 +4,7 @@
  *      China) and this way we can redirect the users to a working mirror.
  *  2. Keeping track of all website pages that were used in different versions AdGuard products in one place. Without
  *      that it's harder to figure out what pages are required by old apps & extensions versions.
+ * @file Shared constants: link forwarder urls and fixed configuration values.
  */
 export const DOWNLOAD_LINK = 'https://link.adtidy.org/forward.html?action=download&from=popup&app=browser_assistant';
 export const EXTENSION_DOWNLOAD_LINK = 'https://link.adtidy.org/forward.html?action=download_browser_assistant&from=popup&app=browser_assistant';

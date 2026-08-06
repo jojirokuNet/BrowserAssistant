@@ -1,3 +1,6 @@
+/**
+ * @file PostCSS configuration for the bundled styles.
+ */
 module.exports = {
     plugins: {
         'postcss-import': {},

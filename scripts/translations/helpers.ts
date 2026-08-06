@@ -1,3 +1,6 @@
+/**
+ * @file Shared helpers for the translation scripts.
+ */
 /* eslint-disable no-console */
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -20,7 +23,7 @@ export const log = {
 };
 
 /**
- * Single entry of a locale messages.json file
+ * Single entry of a locale messages.json file.
  */
 export interface LocaleMessage {
     message: string;
@@ -28,15 +31,18 @@ export interface LocaleMessage {
 }
 
 /**
- * Locale messages dictionary keyed by message id
+ * Locale messages dictionary keyed by message id.
  */
 export type LocaleMessages = Record<string, LocaleMessage>;
 
 /**
- * Gets strings for certain locale
- * @param localesDir path to the locales directory
- * @param locale locale code
- * @param localesDataFilename locale data filename
+ * Reads the locale messages for the requested locale from disk.
+ * @param localesDir Path to the locales directory.
+ * @param locale Locale code to read.
+ * @param localesDataFilename Name of the messages file inside the locale
+ * directory.
+ * @returns Parsed locale messages for the requested locale.
+ * @throws When the messages file contains invalid JSON.
  */
 export const getLocaleTranslations = async (
     localesDir: string,
@@ -49,7 +55,10 @@ export const getLocaleTranslations = async (
 };
 
 /**
- * Compares two arrays
+ * Compares two arrays element-wise.
+ * @param arr1 First array to compare.
+ * @param arr2 Second array to compare.
+ * @returns Whether the two arrays are equal element-wise.
  */
 export const areArraysEqual = (arr1: string[], arr2: string[]): boolean => {
     if (!arr1 || !arr2) {

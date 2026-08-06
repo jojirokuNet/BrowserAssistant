@@ -1,9 +1,12 @@
+/**
+ * @file Abstract consent manager replaced per browser at build time.
+ */
 // !IMPORTANT!
 // export './ConsentAbstract' is replaced during webpack compilation
 // with NormalModuleReplacementPlugin to proper browser implementation
 // from './ConsentChrome' or './ConsentFirefox'
 /**
- * Abstract consent class
+ * Abstract consent class.
  */
 export default class ConsentAbstract {
     /**
@@ -14,14 +17,18 @@ export default class ConsentAbstract {
     declare CONSENT_REQUIRED_STORAGE_KEY?: string;
 
     /**
-     * Returns true if consent is required
+     * Returns true if consent is required.
+     * @returns Whether the user consent is required.
+     * @throws When the method is not implemented.
      */
     async isConsentRequired(): Promise<boolean> {
         throw new Error('Not implemented');
     }
 
     /**
-     * Sets consent value
+     * Sets consent value.
+     * @param value Consent value to set.
+     * @throws When the method is not implemented.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setConsentRequired(value: boolean): void {

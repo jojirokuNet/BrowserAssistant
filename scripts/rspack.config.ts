@@ -1,3 +1,6 @@
+/**
+ * @file Rspack configuration for the extension builds.
+ */
 import fs from 'fs';
 import path from 'path';
 
@@ -40,6 +43,8 @@ const OPTIONS_UI_PATH = path.resolve(__dirname, SRC_PATH, 'options-ui');
  * CleanWebpackPlugin dev exceptions (its cleanAfterEveryBuildPatterns
  * negated all '*.json' files and everything under 'assets/').
  * Matches both absolute and output-relative paths.
+ * @param filePath File path to check.
+ * @returns Whether the file should be kept on dev clean.
  */
 const keepOnDevClean = (filePath: string): boolean => (
     filePath.endsWith('.json') || /(^|[\\/])assets[\\/]/.test(filePath)
@@ -53,6 +58,10 @@ const keepOnDevClean = (filePath: string): boolean => (
  * are preserved via keepOnDevClean.
  */
 class CleanStaleDevFilesPlugin {
+    /**
+     * Registers the afterEmit hook that removes stale files from the output.
+     * @param compiler Webpack compiler instance.
+     */
     apply(compiler: Compiler): void {
         compiler.hooks.afterEmit.tap('CleanStaleDevFilesPlugin', (compilation) => {
             const outputPath = compilation.outputOptions.path as string;

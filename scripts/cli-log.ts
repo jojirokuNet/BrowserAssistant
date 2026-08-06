@@ -1,3 +1,6 @@
+/**
+ * @file Helpers for writing colored log output from the build scripts.
+ */
 /* eslint-disable no-console */
 import chalk from 'chalk';
 

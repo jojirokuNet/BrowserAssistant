@@ -1,3 +1,6 @@
+/**
+ * @file Translation store providing translated messages to the popup.
+ */
 import { createIntl } from 'react-intl';
 
 import {
@@ -16,11 +19,24 @@ import checkLocale from './checkLocale';
 
 const browserLocale = browser.i18n.getUILanguage();
 
+/**
+ * MobX store resolving the UI locale and providing the react-intl instance.
+ */
 class TranslationStore {
+    /**
+     * Root store of the popup.
+     */
     rootStore: RootStore;
 
+    /**
+     * Currently selected locale, or null before initialization.
+     */
     locale: string | null = null;
 
+    /**
+     * Creates the translation store of the popup.
+     * @param rootStore Root store of the popup.
+     */
     constructor(rootStore: RootStore) {
         makeObservable(this, {
             locale: observable,
@@ -31,10 +47,18 @@ class TranslationStore {
         this.rootStore = rootStore;
     }
 
+    /**
+     * Sets the current locale.
+     * @param locale Locale to set.
+     */
     setLocale = (locale: string): void => {
         this.locale = locale;
     };
 
+    /**
+     * Checks whether the locale is already set and messages can be displayed.
+     * @returns True if the locale is set.
+     */
     get isReadyToDisplayMessages(): boolean {
         return !!this.locale;
     }
@@ -43,7 +67,8 @@ class TranslationStore {
      * Returns locale in the next order
      * 1. Returns application locale if has translations
      * 2. Returns browser locale if has translations
-     * 3. Returns base locale
+     * 3. Returns base locale.
+     * @returns The locale to display messages in.
      */
     getLocale = (): { locale: string } => {
         let result = checkLocale(messagesMap, this.locale);
@@ -56,6 +81,10 @@ class TranslationStore {
         return result.suitable ? { locale: result.locale } : { locale: BASE_LOCALE };
     };
 
+    /**
+     * Returns the react-intl instance for the current locale.
+     * @returns The react-intl instance.
+     */
     get i18n() {
         const result = this.getLocale();
 
@@ -77,6 +106,11 @@ class TranslationStore {
         });
     }
 
+    /**
+     * Translates the message with the given id for the current locale.
+     * @param id Message id to translate.
+     * @returns The translated message.
+     */
     translate = (id: string): string => this.i18n.formatMessage({ id });
 }
 

@@ -1,3 +1,6 @@
+/**
+ * @file Manages the context menu items of the extension.
+ */
 import browser from 'webextension-polyfill';
 import { nanoid } from 'nanoid';
 
@@ -38,9 +41,12 @@ type ClickHandlersType = {
     [key in Partial<ContextMenuItem>]?: OnClickedType
 };
 
+/**
+ * Creates the browser context menu items and handles their clicks.
+ */
 export class ContextMenu {
     /**
-     * Click handlers
+     * Click handlers.
      */
     static clickHandlers: ClickHandlersType = {
         [ContextMenuItem.BlockSiteAds]: async () => {
@@ -116,7 +122,7 @@ export class ContextMenu {
     };
 
     /**
-     * Adds listeners, should be on the upper level
+     * Adds listeners, should be on the upper level.
      */
     public static init() {
         notifier.addSpecifiedListener(
@@ -159,7 +165,7 @@ export class ContextMenu {
     })();
 
     /**
-     * Updates context menu
+     * Updates context menu.
      */
     public static async update() {
         // clear old menu items before updating
@@ -171,7 +177,7 @@ export class ContextMenu {
     }
 
     /**
-     * Builds context menu
+     * Builds context menu.
      */
     static async buildContextMenu() {
         if (!state.isAppWorking()) {
@@ -215,9 +221,9 @@ export class ContextMenu {
     }
 
     /**
-     * Handles context menu item click with right handler
-     * @param info
-     * @param tab
+     * Handles context menu item click with right handler.
+     * @param info Data of the clicked menu item.
+     * @param tab Tab the menu item was clicked in, when available.
      */
     static onClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
         const clickHandler = ContextMenu.clickHandlers[info.menuItemId as ContextMenuItem];
@@ -229,9 +235,9 @@ export class ContextMenu {
     }
 
     /**
-     * Creates context menu item
-     * @param menuItemId - i18 key
-     * @param enabled
+     * Creates context menu item.
+     * @param menuItemId I18n key of the menu item.
+     * @param enabled Whether the menu item is enabled.
      */
     static addMenuItem = async (menuItemId: ContextMenuItem, enabled = true) => {
         const menuItem: CreateProps = {
@@ -265,8 +271,8 @@ export class ContextMenu {
     };
 
     /**
-     * Promisifying wrapper for the browser.contextMenus.create method
-     * @param props
+     * Promisifying wrapper for the browser.contextMenus.create method.
+     * @param props Properties of the context menu item to create.
      */
     static createMenu(props: browser.Menus.CreateCreatePropertiesType): Promise<void> {
         return new Promise((resolve, reject) => {

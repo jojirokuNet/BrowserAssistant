@@ -1,3 +1,6 @@
+/**
+ * @file Constants shared by the build and translation scripts.
+ */
 import chalk from 'chalk';
 
 export const SRC_PATH = '../src';
@@ -38,8 +41,9 @@ export const CERTIFICATE_PATHS = {
 };
 
 /**
- * Validates BUILD_ENV value
- * @param buildEnv
+ * Validates the BUILD_ENV value.
+ * @param buildEnv Value of the BUILD_ENV environment variable.
+ * @returns Validated build env value.
  */
 const getBuildEnv = (buildEnv: unknown): BuildEnv => {
     switch (buildEnv) {

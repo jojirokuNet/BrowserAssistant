@@ -1,3 +1,6 @@
+/**
+ * @file Exports the main app component of the popup.
+ */
 import React, { useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { observer } from 'mobx-react';

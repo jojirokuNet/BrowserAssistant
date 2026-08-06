@@ -1,3 +1,6 @@
+/**
+ * @file Locale constants derived from the translation configuration.
+ */
 import fs from 'fs';
 import path from 'path';
 

@@ -1,3 +1,6 @@
+/**
+ * @file Reports translation keys not used in the extension sources.
+ */
 import fs from 'fs';
 import path from 'path';
 
@@ -15,8 +18,9 @@ const LOCALES_DIR = path.resolve(__dirname, LOCALES_RELATIVE_PATH);
 const SRC_DIR = path.resolve(__dirname, SRC_RELATIVE_PATH);
 
 /**
- * Checks file extension is it one of source files
- * @param filePath path to file
+ * Checks whether the file extension is one of the source file extensions.
+ * @param filePath Path to the file.
+ * @returns Whether the file can contain locale strings.
  */
 const canContainLocalesStrings = (filePath: string): boolean => {
     let isSrcFile = false;
@@ -33,9 +37,10 @@ const canContainLocalesStrings = (filePath: string): boolean => {
 };
 
 /**
- * Collects contents of source files in given directory
- * @param dirPath path to dir
- * @param contents result acc
+ * Collects the contents of the source files in the given directory.
+ * @param dirPath Path to the directory.
+ * @param contents Accumulated file contents.
+ * @returns Contents of the source files in the directory.
  */
 const getSrcFilesContents = (dirPath: string, contents: string[] = []): string[] => {
     fs.readdirSync(dirPath).forEach((file) => {
@@ -50,7 +55,7 @@ const getSrcFilesContents = (dirPath: string, contents: string[] = []): string[]
 };
 
 /**
- * Checks if there are unused base-locale strings in source files
+ * Checks if there are unused base-locale strings in source files.
  */
 export const checkUnusedMessages = async (): Promise<void> => {
     const baseLocaleTranslations = await getLocaleTranslations(

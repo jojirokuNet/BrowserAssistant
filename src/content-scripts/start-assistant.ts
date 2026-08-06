@@ -1,3 +1,6 @@
+/**
+ * @file Launches the element-blocking assistant overlay on a page.
+ */
 import { adguardAssistant } from '@adguard/assistant';
 
 type AddRuleCallback = (ruleText: string) => void;

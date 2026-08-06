@@ -1,3 +1,6 @@
+/**
+ * @file Defines the extension preferences: icon paths and fixed urls.
+ */
 import { getUrl } from '../lib/browserApi/runtime';
 import { lazyGet } from '../lib/helpers';
 

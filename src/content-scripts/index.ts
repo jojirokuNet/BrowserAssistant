@@ -1,3 +1,6 @@
+/**
+ * @file Content script entry point reacting to background messages.
+ */
 import browser from 'webextension-polyfill';
 
 import { CONTENT_MESSAGES } from '../lib/types';

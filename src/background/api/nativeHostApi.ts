@@ -1,3 +1,6 @@
+/**
+ * @file Native messaging implementation of the host API.
+ */
 import browser from 'webextension-polyfill';
 import { nanoid } from 'nanoid';
 
@@ -22,20 +25,39 @@ import AbstractApi, {
 
 /**
  * Module implements methods used to communicate with native host via native messaging
- * https://developer.chrome.com/apps/nativeMessaging
+ * https://developer.chrome.com/apps/nativeMessaging.
  */
 export class NativeHostApi extends AbstractApi {
+    /**
+     * Listeners registered for native host messages.
+     */
     listeners: MessageListener[] = [];
 
+    /**
+     * Port connected to the native host.
+     */
     port!: browser.Runtime.Port;
 
+    /**
+     * Handler invoked with the response of the init request.
+     */
     initMessageHandler!: InitMessageHandler;
 
+    /**
+     * Creates the API and initializes the native host module.
+     * @param nativeHostMessagesHandler Listener for messages from the native host.
+     * @param initMessageHandler Handler for the init message response.
+     */
     constructor(nativeHostMessagesHandler: MessageListener, initMessageHandler: InitMessageHandler) {
         super();
         this.initModule(nativeHostMessagesHandler, initMessageHandler);
     }
 
+    /**
+     * Registers the message listeners and connects to the native host.
+     * @param nativeHostMessagesHandler Listener for messages from the native host.
+     * @param initMessageHandler Handler for the init message response.
+     */
     async initModule(
         nativeHostMessagesHandler: MessageListener,
         initMessageHandler: InitMessageHandler,
@@ -50,7 +72,8 @@ export class NativeHostApi extends AbstractApi {
     }
 
     /**
-     * Distributes messages to the listeners
+     * Distributes messages to the listeners.
+     * @param incomingMessage Message received from the native host.
      */
     incomingMessageHandler = async (incomingMessage: any): Promise<void> => {
         log.debug(`Received response: ${incomingMessage.requestId}`, incomingMessage);
@@ -74,30 +97,42 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Adds listener to the listeners list
+     * Adds listener to the listeners list.
+     * @param listener Listener to add.
      */
     addMessageListener = (listener: MessageListener): void => {
         this.listeners = [...this.listeners, listener];
     };
 
     /**
-     * Removes listener from listeners list
+     * Removes listener from listeners list.
+     * @param listener Listener to remove.
      */
     removeMessageListener = (listener: MessageListener): void => {
         this.listeners = this.listeners.filter((l) => l !== listener);
     };
 
     /**
-     * Is called on connection or reconnection
+     * Is called on connection or reconnection.
+     * @param handler Handler to call on connection or reconnection.
      */
     addInitMessageHandler = (handler: InitMessageHandler): void => {
         this.initMessageHandler = handler;
     };
 
+    /**
+     * Returns the last runtime error or the port error, if any.
+     * @param port Port to read the error from.
+     * @returns The error message, or undefined when there is no error.
+     */
     getError = (port: browser.Runtime.Port): string | browser.Runtime.PortErrorType | undefined => {
         return browser.runtime.lastError?.message || port.error;
     };
 
+    /**
+     * Logs the port error on disconnect, when one is present.
+     * @param port Disconnected port.
+     */
     disconnectHandler = (port: browser.Runtime.Port): void => {
         const error = this.getError(port);
 
@@ -107,7 +142,7 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Connect to the native host
+     * Connect to the native host.
      */
     connect = async (): Promise<void> => {
         log.info('Connecting to the native host');
@@ -121,6 +156,10 @@ export class NativeHostApi extends AbstractApi {
         await this.sendInitialRequest(false);
     };
 
+    /**
+     * Sends the initial request to the native host.
+     * @param shouldReconnect Whether to reconnect before sending.
+     */
     sendInitialRequest = async (shouldReconnect: boolean): Promise<void> => {
         const { version, apiVersion, userAgent } = versions;
         const response = await this.init({ version, userAgent, apiVersion }, shouldReconnect);
@@ -128,7 +167,7 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Disconnect from the native host
+     * Disconnect from the native host.
      */
     disconnect = (): void => {
         log.debug('Disconnecting from native host');
@@ -137,7 +176,7 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Reconnect to the native host
+     * Reconnect to the native host.
      */
     reconnect = async (): Promise<void> => {
         log.debug('Trying to reconnect to native host...');
@@ -146,8 +185,13 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Makes request with reconnection by default
-     * tryReconnect - by default function retries to reconnect
+     * Makes a request with reconnection by default. The function retries
+     * to reconnect on failure.
+     * @param params Request payload to send.
+     * @param tryReconnect Whether to retry the request on reconnection.
+     * @returns Promise resolved with the native host response.
+     * @throws When the consent agreement was not received, or when the
+     * request fails and reconnection does not help.
      */
     makeRequest = async (params: RequestParams, tryReconnect = true): Promise<any> => {
         const isConsentRequired = await consent.isConsentRequired();
@@ -180,6 +224,11 @@ export class NativeHostApi extends AbstractApi {
         }
     };
 
+    /**
+     * Makes a single request to the native host without reconnection.
+     * @param params Request payload to send.
+     * @returns Promise resolved with the native host response.
+     */
     makeRequestOnce = async (params: RequestParams): Promise<any> => {
         // Requests can be executed too long time on application launch
         const RESPONSE_TIMEOUT_MS = 1000 * 60 * 5;
@@ -242,7 +291,10 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Sends initial request to the native host
+     * Sends initial request to the native host.
+     * @param initParams Parameters of the init request.
+     * @param tryReconnect Whether to retry the request on reconnection.
+     * @returns Promise resolved with the native host response.
      */
     init = ({ version, userAgent, apiVersion }: InitParams, tryReconnect = false): Promise<any> => {
         return this.makeRequest({
@@ -257,7 +309,8 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Returns current app state
+     * Returns current app state.
+     * @returns Promise resolved with the current app state.
      */
     getCurrentAppState = async (): Promise<any> => {
         const response = await this.makeRequest({
@@ -267,7 +320,11 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Returns filtering state for url, used to get state of current tab
+     * Returns filtering state for url, used to get state of current tab.
+     * @param url URL to get the filtering state for.
+     * @param port Port used by the filtering state request.
+     * @param forceStartApp Whether to force the app to start.
+     * @returns Promise resolved with the filtering state for the url.
      */
     getCurrentFilteringState = (url: string, port: number, forceStartApp = false): Promise<any> => {
         return this.makeRequest({
@@ -277,7 +334,9 @@ export class NativeHostApi extends AbstractApi {
     };
 
     /**
-     * Sets protections status of the app
+     * Sets protections status of the app.
+     * @param isEnabled Whether the app protection is enabled.
+     * @returns Promise resolved with the native host response.
      */
     setProtectionStatus = (isEnabled: boolean): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.setProtectionStatus,
@@ -285,7 +344,11 @@ export class NativeHostApi extends AbstractApi {
     });
 
     /**
-     * Sets filtering status
+     * Sets filtering status.
+     * @param isEnabled Whether filtering is enabled.
+     * @param isHttpsEnabled Whether HTTPS filtering is enabled.
+     * @param url URL the filtering status applies to.
+     * @returns Promise resolved with the native host response.
      */
     setFilteringStatus = (isEnabled: boolean, isHttpsEnabled: boolean, url: string): Promise<any> => {
         return this.makeRequest({
@@ -294,11 +357,21 @@ export class NativeHostApi extends AbstractApi {
         });
     };
 
+    /**
+     * Adds a user rule.
+     * @param ruleText Text of the rule to add.
+     * @returns Promise resolved with the native host response.
+     */
     addRule = (ruleText: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.addRule,
         parameters: { ruleText },
     });
 
+    /**
+     * Removes custom rules for the given url.
+     * @param url Url the custom rules apply to.
+     * @returns Promise resolved with the native host response.
+     */
     removeCustomRules = (url: string): Promise<any> => {
         return this.makeRequest({
             type: REQUEST_TYPES.removeCustomRules,
@@ -306,11 +379,23 @@ export class NativeHostApi extends AbstractApi {
         });
     };
 
+    /**
+     * Opens the original certificate of the given host.
+     * @param domain Domain of the host.
+     * @param port Port of the host.
+     * @returns Promise resolved with the native host response.
+     */
     openOriginalCert = (domain: string, port: number): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openOriginalCert,
         parameters: { domain, port },
     });
 
+    /**
+     * Reports the website to the application.
+     * @param url Url of the website to report.
+     * @param referrer Referrer of the website to report.
+     * @returns Promise resolved with the native host response.
+     */
     reportSite = (url: string, referrer: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.reportSite,
         parameters: {
@@ -321,28 +406,34 @@ export class NativeHostApi extends AbstractApi {
     });
 
     /**
-     * Sends message to open filtering log
+     * Sends message to open filtering log.
+     * @returns Promise resolved with the native host response.
      */
     openFilteringLog = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openFilteringLog,
     });
 
     /**
-     * Sends message to open settings
+     * Sends message to open settings.
+     * @returns Promise resolved with the native host response.
      */
     openSettings = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openSettings,
     });
 
     /**
-     * Sends message to update app
+     * Sends message to update app.
+     * @returns Promise resolved with the native host response.
      */
     updateApp = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.updateApp,
     });
 
     /**
-     * Sends message to pause filtering
+     * Sends message to pause filtering.
+     * @param url URL to pause filtering on.
+     * @param timeout Timeout of the filtering pause.
+     * @returns Promise resolved with the native host response.
      */
     pauseFiltering = (url: string, timeout: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.pauseFiltering,

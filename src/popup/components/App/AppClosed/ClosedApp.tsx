@@ -1,3 +1,6 @@
+/**
+ * @file View shown when the desktop application is closed.
+ */
 import React, { useContext } from 'react';
 
 import classnames from 'classnames';

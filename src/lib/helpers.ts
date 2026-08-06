@@ -1,9 +1,14 @@
+/**
+ * @file Utility helpers shared across the extension contexts.
+ */
 import { PROTOCOLS, PROTOCOL_TO_PORT_MAP } from '../popup/stores/consts';
 
 type Protocol = 'HTTPS' | 'HTTP' | 'SECURED';
 
 /**
- * Returns URL properties of url if it was correct, otherwise returns input url
+ * Returns URL properties of url if it was correct, otherwise returns input url.
+ * @param url URL to parse.
+ * @returns URL object, or the input url when parsing fails.
  */
 export const getUrlProperties = (url: string): URL | string => {
     try {
@@ -15,7 +20,10 @@ export const getUrlProperties = (url: string): URL | string => {
 };
 
 /**
- * Checks if string is chrome-extension: or moz-extension: protocol
+ * Checks if string is chrome-extension: or moz-extension: protocol.
+ * @param protocol Protocol to check.
+ * @returns Whether the protocol is a chrome-extension or moz-extension
+ * protocol.
  */
 export const isExtensionProtocol = (protocol: string): boolean => {
     return /^(chrome|moz)-extension:/.test(protocol);
@@ -33,7 +41,9 @@ export const getFormattedProtocol = (protocol: string): Protocol => {
 };
 
 /**
- * Returns url parts: port, protocol and hostname
+ * Returns url parts: port, protocol and hostname.
+ * @param url URL to parse.
+ * @returns Port, protocol and hostname of the url.
  */
 export const getUrlProps = (url: string): { port: number; protocol: string; hostname: string } => {
     const { hostname, port, protocol } = getUrlProperties(url) as URL;
@@ -48,7 +58,9 @@ export const getUrlProps = (url: string): { port: number; protocol: string; host
 };
 
 /**
- * Checks if string is a valid url with http: or https: protocol
+ * Checks if string is a valid url with http: or https: protocol.
+ * @param str URL string to check.
+ * @returns Whether the url uses the http or https protocol.
  */
 export const isHttp = (str: string): boolean => {
     let url: URL;
@@ -62,7 +74,11 @@ export const isHttp = (str: string): boolean => {
 
 /**
  * Returns the value of the property from the cache,
- * otherwise, calculates it using the callback, memoizes it, and returns the value
+ * otherwise, calculates it using the callback, memoizes it, and returns the value.
+ * @param obj Object to memoize the value on.
+ * @param prop Name of the property to compute.
+ * @param func Callback computing the value.
+ * @returns The cached or freshly computed value.
  */
 export const lazyGet = <T extends object, V>(obj: T, prop: string, func: (this: T) => V): V => {
     const cachedProp = `_${prop}`;
@@ -77,7 +93,10 @@ export const lazyGet = <T extends object, V>(obj: T, prop: string, func: (this: 
 };
 
 /**
- * Flattens the object by mapping its keys to the specified property of the nested object
+ * Flattens the object by mapping its keys to the specified property of the nested object.
+ * @param obj Object to flatten.
+ * @param propName Property of the nested objects to map the keys to.
+ * @returns Flattened object.
  */
 export const flattenNestedObj = <T extends Record<string, unknown>, K extends keyof T>(
     obj: Record<string, T>,
@@ -91,7 +110,9 @@ export const flattenNestedObj = <T extends Record<string, unknown>, K extends ke
 };
 
 /**
- * Checks if at least one value of the object is strictly equal to true
+ * Checks if at least one value of the object is strictly equal to true.
+ * @param states Object with values to check.
+ * @returns Whether at least one value is strictly true.
  */
 export const checkSomeIsTrue = (states: Record<string, unknown>): boolean => {
     return Object.values(states)
@@ -99,9 +120,12 @@ export const checkSomeIsTrue = (states: Record<string, unknown>): boolean => {
 };
 
 /**
- * If the semver string a is greater than b, return 1.
- * If the semver string b is greater than a, return -1.
- * If a equals b, return 0;
+ * Compares two semver strings. If the semver string a is greater than b,
+ * return 1. If the semver string b is greater than a, return -1. If a
+ * equals b, return 0.
+ * @param a First semver string.
+ * @param b Second semver string.
+ * @returns 1 when a is greater, -1 when b is greater, 0 when equal.
  */
 export const compareSemver = (a: string, b: string): -1 | 0 | 1 => {
     const pa = a.split('.');

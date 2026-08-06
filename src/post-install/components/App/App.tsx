@@ -1,3 +1,6 @@
+/**
+ * @file Post-install page root component.
+ */
 import React, { useEffect } from 'react';
 
 import { TermsAgreement } from '../../../shared/components/TermsAgreement';

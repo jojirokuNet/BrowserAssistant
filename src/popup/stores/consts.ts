@@ -1,3 +1,6 @@
+/**
+ * @file Constants shared by the popup stores.
+ */
 export const PROTOCOL_TO_PORT_MAP = {
     HTTPS: 443,
     HTTP: 80,

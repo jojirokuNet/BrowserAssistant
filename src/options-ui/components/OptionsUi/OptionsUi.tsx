@@ -1,3 +1,6 @@
+/**
+ * @file Options page root component.
+ */
 import React, { useContext, useEffect } from 'react';
 import { observer } from 'mobx-react';
 

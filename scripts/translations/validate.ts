@@ -1,3 +1,6 @@
+/**
+ * @file Validates the locale files against the base locale.
+ */
 import path from 'path';
 
 import {
@@ -18,17 +21,18 @@ const LOCALES = Object.keys(LANGUAGES); // locales to be downloaded
 const LOCALES_DIR = path.resolve(__dirname, LOCALES_RELATIVE_PATH);
 
 /**
- * Translations readiness result for a single locale
+ * Translations readiness result for a single locale.
  */
 interface TranslationResult {
     locale: string;
-    /** Percentage of translated messages, rounded to two decimals */
+    /** Percentage of translated messages, rounded to two decimals. */
     level: number;
     untranslatedStrings: string[];
 }
 
 /**
- * Logs translations readiness
+ * Logs translations readiness.
+ * @param results Translation results to print.
  */
 const printTranslationsResults = (results: TranslationResult[]): void => {
     log.info('Translations readiness:');
@@ -46,11 +50,13 @@ const printTranslationsResults = (results: TranslationResult[]): void => {
 };
 
 /**
- * Checks locales translations readiness
- * @param locales list of locales
- * @param isInfo flag for info script
- * @returns array of objects with locale, level of translation readiness
- * and untranslated strings
+ * Checks locales translations readiness.
+ * @param locales List of locales.
+ * @param isInfo Flag for info script.
+ * @returns Array of objects with locale, level of translation readiness
+ * and untranslated strings.
+ * @throws When at least one checked locale is below the required
+ * translation level.
  */
 export const checkTranslations = async (
     locales: string[],

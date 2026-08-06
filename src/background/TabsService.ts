@@ -1,3 +1,6 @@
+/**
+ * @file Service that prepares data about the current tab for the popup.
+ */
 import browser from 'webextension-polyfill';
 
 import { CONTENT_MESSAGES } from '../lib/types';
@@ -10,9 +13,12 @@ import notifier from '../lib/notifier';
 import filteringPause from './filteringPause';
 
 /**
- * Manages interaction with tabs
+ * Manages interaction with tabs.
  */
 class TabsService {
+    /**
+     * Subscribes to tab update and activation events to refresh tab state.
+     */
     constructor() {
         browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             if (changeInfo.status === 'complete' || changeInfo.status === 'loading') {
@@ -43,7 +49,11 @@ class TabsService {
     }
 
     /**
-     * Sends message to the tab, previously executing there content script
+     * Sends message to the tab, previously executing there content script.
+     * @param tabId Id of the tab to send the message to.
+     * @param type Type of the message to send.
+     * @param data Data to pass with the message.
+     * @returns Promise resolved with the response from the tab.
      */
     sendMessage = async (tabId: number | undefined, type: string, data?: any): Promise<any> => {
         // The tabId casts keep today's runtime unchanged: callers can
@@ -62,7 +72,9 @@ class TabsService {
     };
 
     /**
-     * Retrieves referrer from content script
+     * Retrieves referrer from content script.
+     * @param tab Tab to retrieve the referrer from.
+     * @returns Referrer of the tab, or an empty string on failure.
      */
     getReferrer = async (tab: PreparedTab): Promise<string> => {
         try {
@@ -74,7 +86,8 @@ class TabsService {
     };
 
     /**
-     * Sends message to init assistant on the page, and passes it callback name
+     * Sends message to init assistant on the page, and passes it callback name.
+     * @param tabId Id of the tab to init the assistant on.
      */
     initAssistant = async (tabId: number | undefined): Promise<void> => {
         const data = { addRuleCallbackName: CONTENT_MESSAGES.ADD_RULE };

@@ -1,3 +1,6 @@
+/**
+ * @file Shared helpers and the manifest type of the build scripts.
+ */
 import { BUILD_ENVS_MAP, BuildEnv } from './consts';
 
 const pJson = require('../package.json');

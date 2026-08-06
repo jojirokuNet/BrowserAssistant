@@ -1,3 +1,6 @@
+/**
+ * @file Updates the browser action icon from the filtering state.
+ */
 import throttle from 'lodash/throttle';
 
 import notifier from '../lib/notifier';
@@ -8,9 +11,12 @@ import state from './state';
 import { ContextMenu } from './contextMenu';
 
 /**
- * This class handles browser action icon updates
+ * This class handles browser action icon updates.
  */
 class Icon {
+    /**
+     * Subscribes to tab and state events and throttles icon updates.
+     */
     constructor() {
         // If updates of icon happen too often ignore them
         const ICON_THROTTLE_TIMEOUT_MS = 50;
@@ -32,7 +38,8 @@ class Icon {
     }
 
     /**
-     * Updates icon according to the current app and tab state
+     * Updates icon according to the current app and tab state.
+     * @param tab Tab to update the icon for.
      */
     updateIcon = async (tab: PreparedTab): Promise<void> => {
         if (!state.isAppWorking()) {

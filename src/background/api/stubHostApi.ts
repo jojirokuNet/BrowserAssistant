@@ -1,3 +1,6 @@
+/**
+ * @file Stub implementation of the host API for development.
+ */
 import { nanoid } from 'nanoid';
 
 import { log } from '../../lib/logger';
@@ -59,14 +62,18 @@ const observer = (() => {
     };
 
     /**
-     * Checks if value isPrimitive
+     * Checks if the value is primitive.
+     * @param value Value to check.
+     * @returns Whether the value is primitive.
      */
     const isPrimitive = (value: unknown): boolean => {
         return (value !== Object(value));
     };
 
     /**
-     * Traces sets to the properties in the object
+     * Traces sets to the properties in the object.
+     * @param obj Object to trace changes on.
+     * @returns Proxy wrapping the object.
      */
     const traceChanges = (obj: any): any => {
         // eslint-disable-next-line no-restricted-syntax
@@ -104,7 +111,8 @@ hostData = observer.traceChanges(hostData);
 global.hostData = hostData;
 
 /**
- * Async function waiting for timeout
+ * Async function waiting for timeout.
+ * @param timeout Time to wait in milliseconds.
  */
 const sleep = (timeout: number): Promise<void> => {
     return new Promise<void>((resolve) => {
@@ -115,9 +123,13 @@ const sleep = (timeout: number): Promise<void> => {
 };
 
 /**
- * Generates response similar to the real native host response
- * async - boolean flag to generate non async response,
- *  used to handle subscribed changes
+ * Generates a response similar to the real native host response. The
+ * `async` flag generates a non-async response, used to handle subscribed
+ * changes.
+ * @param type Type of the request to generate a response for.
+ * @param async Whether to delay the response asynchronously.
+ * @returns Promise resolved with the generated response.
+ * @throws When an incorrect request type is received.
  */
 const generateResponse = async (type: string, async = true): Promise<any> => {
     if (async) {
@@ -230,11 +242,26 @@ const generateResponse = async (type: string, async = true): Promise<any> => {
     }
 };
 
+/**
+ * Stub implementation of the native host API for debugging without the
+ * desktop application.
+ */
 export class StubHostApi extends AbstractApi {
+    /**
+     * Listeners registered for native host messages.
+     */
     listeners: MessageListener[] = [];
 
+    /**
+     * Handler invoked with the response of the init request.
+     */
     initMessageHandler!: InitMessageHandler;
 
+    /**
+     * Creates the stub API, initializes the module and exposes it globally.
+     * @param nativeHostMessagesHandler Listener for messages from the native host.
+     * @param initMessageHandler Handler for the init message response.
+     */
     constructor(nativeHostMessagesHandler: MessageListener, initMessageHandler: InitMessageHandler) {
         super();
         this.initModule(nativeHostMessagesHandler, initMessageHandler);
@@ -242,6 +269,11 @@ export class StubHostApi extends AbstractApi {
         global.stubHostApi = this;
     }
 
+    /**
+     * Registers the message listeners and connects to the native host stub.
+     * @param nativeHostMessagesHandler Listener for messages from the native host.
+     * @param initMessageHandler Handler for the init message response.
+     */
     async initModule(
         nativeHostMessagesHandler: MessageListener,
         initMessageHandler: InitMessageHandler,
@@ -256,7 +288,8 @@ export class StubHostApi extends AbstractApi {
     }
 
     /**
-     * Distributes messages to the listeners
+     * Distributes messages to the listeners.
+     * @param incomingMessage Message received from the native host.
      */
     incomingMessageHandler = async (incomingMessage: any): Promise<void> => {
         log.debug(`response ${incomingMessage.id}`, incomingMessage);
@@ -270,28 +303,31 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Adds listener to the listeners list
+     * Adds listener to the listeners list.
+     * @param listener Listener to add.
      */
     addMessageListener = (listener: MessageListener): void => {
         this.listeners = [...this.listeners, listener];
     };
 
     /**
-     * Removes listener from listeners list
+     * Removes listener from listeners list.
+     * @param listener Listener to remove.
      */
     removeMessageListener = (listener: MessageListener): void => {
         this.listeners = this.listeners.filter((l) => l !== listener);
     };
 
     /**
-     * Is called on connection or reconnection
+     * Is called on connection or reconnection.
+     * @param handler Handler to call on connection or reconnection.
      */
     addInitMessageHandler = (handler: InitMessageHandler): void => {
         this.initMessageHandler = handler;
     };
 
     /**
-     * Connect to the native host
+     * Connect to the native host.
      */
     connect = async (): Promise<void> => {
         observer.subscribe(async () => {
@@ -301,6 +337,10 @@ export class StubHostApi extends AbstractApi {
         await this.sendInitialRequest(false);
     };
 
+    /**
+     * Sends the initial request to the stub native host.
+     * @param shouldReconnect Whether to reconnect before sending.
+     */
     sendInitialRequest = async (shouldReconnect: boolean): Promise<void> => {
         const { version, apiVersion, userAgent } = versions;
         const response = await this.init({ version, userAgent, apiVersion }, shouldReconnect);
@@ -308,14 +348,14 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Disconnect from the native host
+     * Disconnect from the native host.
      */
     disconnect = (): void => {
         log.debug('Disconnecting from native host');
     };
 
     /**
-     * Reconnect to the native host
+     * Reconnect to the native host.
      */
     reconnect = async (): Promise<void> => {
         log.debug('Trying to reconnect to native host...');
@@ -324,8 +364,12 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Makes request with reconnection by default
-     * tryReconnect - by default function retries to reconnect
+     * Makes a request with reconnection by default. The function retries
+     * to reconnect on failure.
+     * @param params Request payload to send.
+     * @param tryReconnect Whether to retry the request on reconnection.
+     * @returns Promise resolved with the generated response.
+     * @throws When the request fails and reconnection does not help.
      */
     makeRequest = async (params: RequestParams, tryReconnect = true): Promise<any> => {
         try {
@@ -345,6 +389,11 @@ export class StubHostApi extends AbstractApi {
         }
     };
 
+    /**
+     * Makes a single request to the stub native host.
+     * @param params Request payload to send.
+     * @returns Promise resolved with the generated response.
+     */
     makeRequestOnce = async (params: RequestParams): Promise<any> => {
         const id = `${ADG_PREFIX}_${CUSTOM_REQUEST_PREFIX}_${nanoid()}`;
         log.info(`Sending request: ${id}`, params);
@@ -353,7 +402,10 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Sends initial request to the native host
+     * Sends initial request to the native host.
+     * @param initParams Parameters of the init request.
+     * @param tryReconnect Whether to retry the request on reconnection.
+     * @returns Promise resolved with the generated response.
      */
     init = ({ version, userAgent, apiVersion }: InitParams, tryReconnect = false): Promise<any> => {
         return this.makeRequest({
@@ -368,7 +420,9 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Returns current app state
+     * Returns current app state.
+     * @returns Promise resolved with the current app state.
+     * @throws When the response has no app state.
      */
     getCurrentAppState = async (): Promise<any> => {
         const response = await this.makeRequest({
@@ -381,7 +435,11 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Returns filtering state for url, used to get state of current tab
+     * Returns filtering state for url, used to get state of current tab.
+     * @param url URL to get the filtering state for.
+     * @param port Port used by the filtering state request.
+     * @param forceStartApp Whether to force the app to start.
+     * @returns Promise resolved with the filtering state for the url.
      */
     getCurrentFilteringState = (url: string, port: number, forceStartApp = false): Promise<any> => {
         return this.makeRequest({
@@ -390,13 +448,22 @@ export class StubHostApi extends AbstractApi {
         });
     };
 
+    /**
+     * Toggles the protection status of the application.
+     * @param isEnabled Whether protection is enabled.
+     * @returns Promise resolved with the generated response.
+     */
     setProtectionStatus = (isEnabled: boolean): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.setProtectionStatus,
         parameters: { isEnabled },
     });
 
     /**
-     * Sets filtering status
+     * Sets filtering status.
+     * @param isEnabled Whether filtering is enabled.
+     * @param isHttpsEnabled Whether HTTPS filtering is enabled.
+     * @param url URL the filtering status applies to.
+     * @returns Promise resolved with the generated response.
      */
     setFilteringStatus = (isEnabled: boolean, isHttpsEnabled: boolean, url: string): Promise<any> => {
         return this.makeRequest({
@@ -406,7 +473,9 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Sends request to add rule in the app
+     * Sends request to add rule in the app.
+     * @param ruleText Text of the rule to add.
+     * @returns Promise resolved with the generated response.
      */
     addRule = (ruleText: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.addRule,
@@ -414,7 +483,9 @@ export class StubHostApi extends AbstractApi {
     });
 
     /**
-     * Sends request to remove all custom rules for the current url
+     * Sends request to remove all custom rules for the current url.
+     * @param url URL to remove the custom rules for.
+     * @returns Promise resolved with the generated response.
      */
     removeCustomRules = (url: string): Promise<any> => {
         return this.makeRequest({
@@ -424,7 +495,10 @@ export class StubHostApi extends AbstractApi {
     };
 
     /**
-     * Sends request to the app to open window with certificate description
+     * Sends request to the app to open window with certificate description.
+     * @param domain Domain of the original certificate.
+     * @param port Port of the original certificate.
+     * @returns Promise resolved with the generated response.
      */
     openOriginalCert = (domain: string, port: number): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openOriginalCert,
@@ -432,7 +506,10 @@ export class StubHostApi extends AbstractApi {
     });
 
     /**
-     * Sends request to the app to generate report url
+     * Sends request to the app to generate report url.
+     * @param url URL to report.
+     * @param referrer Referrer of the reported page.
+     * @returns Promise resolved with the generated response.
      */
     reportSite = (url: string, referrer: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.reportSite,
@@ -444,28 +521,34 @@ export class StubHostApi extends AbstractApi {
     });
 
     /**
-     * Sends message to open filtering log
+     * Sends message to open filtering log.
+     * @returns Promise resolved with the generated response.
      */
     openFilteringLog = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openFilteringLog,
     });
 
     /**
-     * Sends message to open settings
+     * Sends message to open settings.
+     * @returns Promise resolved with the generated response.
      */
     openSettings = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.openSettings,
     });
 
     /**
-     * Sends message to update app
+     * Sends message to update app.
+     * @returns Promise resolved with the generated response.
      */
     updateApp = (): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.updateApp,
     });
 
     /**
-     * Sends message to pause filtering
+     * Sends message to pause filtering.
+     * @param url URL to pause filtering on.
+     * @param timeout Timeout of the filtering pause.
+     * @returns Promise resolved with the generated response.
      */
     pauseFiltering = (url: string, timeout: string): Promise<any> => this.makeRequest({
         type: REQUEST_TYPES.pauseFiltering,

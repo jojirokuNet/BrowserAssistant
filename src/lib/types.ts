@@ -1,3 +1,6 @@
+/**
+ * @file Message contracts and shared types between contexts.
+ */
 export const REQUEST_TYPES = {
     init: 'init',
     getCurrentAppState: 'getCurrentAppState',

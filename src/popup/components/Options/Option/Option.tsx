@@ -1,3 +1,6 @@
+/**
+ * @file Option row component of the popup settings view.
+ */
 import React, { KeyboardEventHandler } from 'react';
 
 import classNames from 'classnames';

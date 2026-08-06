@@ -1,3 +1,6 @@
+/**
+ * @file Exports the browser-specific consent implementation.
+ */
 // !IMPORTANT!
 // export './ConsentAbstract' is replaced during webpack compilation
 // with NormalModuleReplacementPlugin to proper browser implementation

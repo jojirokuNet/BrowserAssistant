@@ -1,3 +1,6 @@
+/**
+ * @file Aggregates the locale messages of all languages.
+ */
 import { flattenNestedObj } from '../lib/helpers';
 
 import { LANGUAGES } from './langConstants';

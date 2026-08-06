@@ -1,3 +1,6 @@
+/**
+ * @file Exports the secure status modal.
+ */
 import React, { useContext } from 'react';
 import Modal from 'react-modal';
 import { observer } from 'mobx-react';

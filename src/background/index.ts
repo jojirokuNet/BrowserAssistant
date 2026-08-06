@@ -1,3 +1,6 @@
+/**
+ * @file Background service worker entry point wiring the extension together.
+ */
 import browser from 'webextension-polyfill';
 
 import { log } from '../lib/logger';
@@ -19,7 +22,7 @@ browser.runtime.onMessage.addListener(messageHandler);
 browser.runtime.onConnect.addListener(longLivedMessageService.init);
 
 /**
- * Run info computed by updateService on extension install/update
+ * Run info computed by updateService on extension install/update.
  */
 interface RunInfo {
     isUpdate: boolean;

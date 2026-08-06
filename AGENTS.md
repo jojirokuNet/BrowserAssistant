@@ -15,6 +15,7 @@ environment setup and user-facing docs see `README.md`.
     - [System Design](#system-design)
     - [Architecture](#architecture)
     - [Code Quality](#code-quality)
+    - [JSDoc Style](#jsdoc-style)
     - [Testing](#testing)
     - [Dependency Management](#dependency-management)
     - [Configuration & Documentation](#configuration--documentation)
@@ -236,17 +237,65 @@ modules. `src/lib/` must stay a leaf.
   other externals, `@adguard/*` after them, internal/parent/sibling
   modules, `.pcss` style imports last; blank lines between groups; long
   multi-name imports are split one-per-line (`import-newlines`).
-- Use JSDoc comments for non-obvious functions and exported constants
-  (see `constants.js`); comment intent, not mechanics.
+- Comment intent, not mechanics; see the JSDoc Style section for what
+  must be documented and how.
 - Error handling: normalize unknown caught errors with `getErrorMessage`
   from `src/lib/errors.ts`; log errors via `src/lib/logger.ts` rather
   than `console`.
 - Naming: files use camelCase (`messageHandler.ts`); classes and React
   components use PascalCase (`TabsService.ts`, `SettingsStore.ts`); test
-  files use the `*.test.ts` suffix.
+  files use the `*.test.ts` suffix. Include units of measurement in names
+  of variables holding physical quantities (e.g. `filteringPauseTimeoutMs`,
+  `retryDelaySec`), not only in comments.
 - All first-party sources are TypeScript; only root-level tool configs
   (`.eslintrc.js`, `postcss.config.js`, `constants.js`) remain
   JavaScript. Match the style of the surrounding code.
+
+### JSDoc Style
+
+JSDoc conventions are enforced by `eslint-plugin-jsdoc` through the
+`plugin:jsdoc/recommended-error` preset and the JSDoc tiers in
+`.eslintrc.js`; `pnpm lint` rejects non-conforming blocks, so follow
+these rules on the first pass.
+
+**Declarations that require a doc block:**
+
+- Classes, class properties, function declarations, and method
+  definitions — including constructors, getters, and setters — MUST
+  carry a JSDoc block with a description.
+- Arrow functions and function expressions are exempt: do not document
+  every inline callback or component. Once a function carries a doc
+  block, the block must satisfy every completeness rule below.
+- Every linted file except `tests/` MUST open with a file overview: a
+  `@file` tag followed by a one-line description of the file's purpose.
+
+**Tag completeness:**
+
+- Document every parameter with `@param` and a description, in
+  signature order; tag a destructured parameter at the root, not per
+  field.
+- Describe the return value with `@returns` when the function returns
+  one, and only then (a `@returns` tag needs an actual return
+  statement).
+- Add `@throws` when a documented function throws; the description is
+  optional.
+- Write the block description and the `@param`, `@returns`, and
+  `@throws` descriptions as complete sentences: start with a capital
+  letter and end with a period (`e.g.` and `i.e.` are allowed).
+
+**Tag style:**
+
+- Do not write `{type}` annotations in tags; TypeScript already carries
+  the types.
+- Do not use ` - ` separators between a tag and its description.
+- Order tags per the sequence `@file`, `@template`/`@class`/`@async`,
+  `@note`, `@see`, `@param`, `@returns`, `@throws`, `@example`; keep
+  the block dense — no blank lines between tags or between the
+  description and the first tag.
+- `@note` is the only custom tag. An unrecognized tag yields a
+  `check-tag-names` warning (warnings alone never fail the build);
+  placed among other tags it can also trip the `sort-tags` ordering
+  error, which does fail lint.
 
 ### Testing
 

@@ -1,3 +1,6 @@
+/**
+ * @file Creates a zip archive of a built extension directory.
+ */
 import {
     createWriteStream,
     existsSync,
@@ -14,10 +17,9 @@ import { cliLog } from '../cli-log';
  *
  * Produces `{browser}.zip` at one level above the output directory,
  * matching the layout of the retired zip-webpack-plugin.
- *
- * @param outputDir - Absolute path to the built extension directory
- *   (e.g., `.../build/dev/chrome/`)
- * @param browser - Browser name used as the zip filename stem
+ * @param outputDir Absolute path to the built extension directory
+ *   (e.g., `.../build/dev/chrome/`).
+ * @param browser Browser name used as the zip filename stem.
  */
 export const createArchive = (
     outputDir: string,

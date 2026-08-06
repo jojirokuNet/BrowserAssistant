@@ -1,3 +1,6 @@
+/**
+ * @file UI store of the popup.
+ */
 import {
     action,
     computed,
@@ -16,23 +19,39 @@ import {
 import { checkSomeIsTrue } from '../../../lib/helpers';
 import type { RootStore } from '..';
 
+/**
+ * MobX store of the popup UI state.
+ */
 class UiStore {
+    /**
+     * Root store of the popup.
+     */
     rootStore: RootStore;
 
     /**
-     * Flag shows that extension has started to get information from native host on first start
+     * Flag shows that extension has started to get information from native host on first start.
      */
     isLoading = true;
 
     /**
-     * Flag is set to the true when popup executes requests to the background
+     * Flag is set to the true when popup executes requests to the background.
      */
     isPending = false;
 
+    /**
+     * State of the certificate status modal.
+     */
     certStatusModalState: ModalState = { ...DEFAULT_MODAL_STATE };
 
+    /**
+     * State of the secure status modal.
+     */
     secureStatusModalState: ModalState = { ...DEFAULT_MODAL_STATE };
 
+    /**
+     * Creates the UI store of the popup.
+     * @param rootStore Root store of the popup.
+     */
     constructor(rootStore: RootStore) {
         makeObservable(this, {
             isLoading: observable,
@@ -53,18 +72,34 @@ class UiStore {
         this.rootStore = rootStore;
     }
 
+    /**
+     * Checks whether the certificate status modal is open.
+     * @returns True when any certificate status modal state field is set.
+     */
     get isCertStatusModalOpen(): boolean {
         return checkSomeIsTrue(this.certStatusModalState);
     }
 
+    /**
+     * Checks whether the page status modal is open.
+     * @returns True when any page status modal state field is set.
+     */
     get isPageStatusModalOpen(): boolean {
         return checkSomeIsTrue(this.secureStatusModalState);
     }
 
+    /**
+     * Returns the active tab index, or -1 while the popup is loading.
+     * @returns The active tab index.
+     */
     get globalTabIndex(): number {
         return (this.isLoading ? -1 : 0);
     }
 
+    /**
+     * Returns the modal info rows for the current secure status.
+     * @returns The secure status modal info.
+     */
     get secureStatusModalInfo() {
         const {
             pageProtocol, currentProtocol, originalCertStatus, isFilteringEnabled,
@@ -90,6 +125,10 @@ class UiStore {
         return MODAL_INFO || SECURE_STATUS_MODAL_STATES.DEFAULT;
     }
 
+    /**
+     * Returns the certificate status flags of the current url.
+     * @returns Object with the certificate status flags.
+     */
     get certStatus() {
         const { originalCertStatus } = this.rootStore.settingsStore;
         return ({
@@ -100,6 +139,11 @@ class UiStore {
         });
     }
 
+    /**
+     * Updates the certificate status modal state.
+     * @param eventType Type of the event that changed the state.
+     * @param newState New modal state, derived from the event when omitted.
+     */
     updateCertStatusModalState = (
         eventType: string,
         newState: ModalState = EVENT_TYPE_TO_MODAL_STATE_MAP[eventType],
@@ -110,10 +154,18 @@ class UiStore {
         };
     };
 
+    /**
+     * Resets the certificate status modal state to the default.
+     */
     resetCertStatusModalState = (): void => {
         this.certStatusModalState = DEFAULT_MODAL_STATE;
     };
 
+    /**
+     * Updates the secure status modal state.
+     * @param eventType Type of the event that changed the state.
+     * @param newState New modal state, derived from the event when omitted.
+     */
     updateSecureStatusModalState = (
         eventType: string,
         newState: ModalState = EVENT_TYPE_TO_MODAL_STATE_MAP[eventType],
@@ -124,10 +176,18 @@ class UiStore {
         };
     };
 
+    /**
+     * Sets whether the extension is loading.
+     * @param isLoading Whether the extension is loading.
+     */
     setExtensionLoading = (isLoading: boolean): void => {
         this.isLoading = isLoading;
     };
 
+    /**
+     * Sets whether the extension start is pending.
+     * @param isPending Whether the extension start is pending.
+     */
     setExtensionPending = (isPending: boolean): void => {
         this.isPending = isPending;
     };

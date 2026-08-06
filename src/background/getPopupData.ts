@@ -1,3 +1,6 @@
+/**
+ * @file Composes the data bundle shown in the popup.
+ */
 import { getErrorMessage } from '../lib/errors';
 import type { PreparedTab } from '../lib/tabs';
 

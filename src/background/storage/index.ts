@@ -1,3 +1,6 @@
+/**
+ * @file Exports the singleton storage wrapper.
+ */
 import browser from 'webextension-polyfill';
 
 import { Storage } from './storage';

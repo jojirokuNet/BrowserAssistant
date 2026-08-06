@@ -1,3 +1,6 @@
+/**
+ * @file Exports the popup header with the application status.
+ */
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 

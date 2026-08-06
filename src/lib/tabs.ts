@@ -1,3 +1,6 @@
+/**
+ * @file Helpers and types for working with browser tabs.
+ */
 import browser, { Tabs } from 'webextension-polyfill';
 
 import { log } from './logger';
@@ -9,7 +12,9 @@ export type PreparedTab = {
 };
 
 /**
- * Extracts only usable data from tab
+ * Extracts only usable data from tab.
+ * @param tab Tab to extract the data from.
+ * @returns Prepared tab data.
  */
 const prepareTab = (tab: Tabs.Tab): PreparedTab => {
     const { url, id, title } = tab;
@@ -22,7 +27,8 @@ const prepareTab = (tab: Tabs.Tab): PreparedTab => {
 
 /**
  * Returns current tab
- * Call from browser action popup in order to get correct tab
+ * Call from browser action popup in order to get correct tab.
+ * @returns Data of the current active tab.
  */
 const getCurrentTab = async (): Promise<PreparedTab> => {
     const tabs = await browser.tabs.query({
@@ -33,7 +39,8 @@ const getCurrentTab = async (): Promise<PreparedTab> => {
 };
 
 /**
- * Returns all active tabs
+ * Returns all active tabs.
+ * @returns Data of all active tabs.
  */
 const getActiveTabs = async (): Promise<PreparedTab[]> => {
     const activeTabs = await browser.tabs.query({ active: true });
@@ -41,7 +48,8 @@ const getActiveTabs = async (): Promise<PreparedTab[]> => {
 };
 
 /**
- * Returns active tab
+ * Returns active tab.
+ * @returns Data of the active tab.
  */
 const getActiveTab = async (): Promise<PreparedTab> => {
     const [tab] = await getActiveTabs();
@@ -49,7 +57,8 @@ const getActiveTab = async (): Promise<PreparedTab> => {
 };
 
 /**
- * Returns all tabs with hostname similar to current active tab
+ * Returns all tabs with hostname similar to current active tab.
+ * @returns Data of all tabs with the same origin as the active tab.
  */
 const getActiveAndSimilarTabs = async (): Promise<PreparedTab[]> => {
     const [activeTab] = await browser.tabs.query({ active: true, currentWindow: true });
@@ -74,7 +83,9 @@ const getActiveAndSimilarTabs = async (): Promise<PreparedTab[]> => {
 };
 
 /**
- * Opens required url
+ * Opens required url.
+ * @param url URL to open.
+ * @throws When the url is empty.
  */
 const openPage = async (url: string): Promise<void> => {
     if (!url) {
@@ -84,7 +95,8 @@ const openPage = async (url: string): Promise<void> => {
 };
 
 /**
- * Reloads required tab
+ * Reloads required tab.
+ * @param tab Tab to reload.
  */
 const reloadTab = async (tab: PreparedTab): Promise<void> => {
     try {
@@ -95,7 +107,7 @@ const reloadTab = async (tab: PreparedTab): Promise<void> => {
 };
 
 /**
- * Opens postinstall page
+ * Opens postinstall page.
  */
 const openPostInstallPage = async (): Promise<void> => {
     const postInstallPageUrl = browser.runtime.getURL('post-install.html');
@@ -103,7 +115,7 @@ const openPostInstallPage = async (): Promise<void> => {
 };
 
 /**
- * Closes post install page if found
+ * Closes post install page if found.
  */
 const closePostInstall = async (): Promise<void> => {
     const postInstallPageUrl = browser.runtime.getURL('post-install.html');

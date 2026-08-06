@@ -1,3 +1,6 @@
+/**
+ * @file Downloads locale translations from the translation service.
+ */
 /* eslint-disable no-await-in-loop */
 import fs from 'fs';
 import path from 'path';
@@ -26,8 +29,9 @@ const API_DOWNLOAD_URL = `${API_URL}/download`;
 const LOCALES_DIR = path.resolve(__dirname, LOCALES_RELATIVE_PATH);
 
 /**
- * Build query string for downloading translations
- * @param lang locale code
+ * Builds the query string for downloading translations.
+ * @param lang Locale code.
+ * @returns The query string for the download request.
  */
 const getQueryString = (lang: string): string => querystring.stringify({
     format: FORMAT,
@@ -37,9 +41,10 @@ const getQueryString = (lang: string): string => querystring.stringify({
 });
 
 /**
- * Save file by path with passed content
- * @param filePath path to file
- * @param data arraybuffer
+ * Saves a file with the passed content at the given path.
+ * @param filePath Path to the file.
+ * @param data Buffer contents to save.
+ * @returns Promise resolved when the file is written.
  */
 const saveFile = (filePath: string, data: Buffer): Promise<void> => {
     const formattedData = data.toString().trim();
@@ -112,7 +117,8 @@ const validateRequiredFields = async (locales: string[]): Promise<void> => {
 };
 
 /**
- * Entry point for downloading translations
+ * Entry point for downloading translations.
+ * @param locales Locale codes to download and save.
  */
 export const downloadAndSave = async (locales: string[]): Promise<void> => {
     await downloadAndSaveLocales(locales);
