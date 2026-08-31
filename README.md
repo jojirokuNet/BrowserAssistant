@@ -1,5 +1,12 @@
 # AdGuard Browser Assistant
 
+> **This repository has moved to GitHub.**
+>
+> The project is now maintained at [AdguardTeam/BrowserAssistant][new-repo].
+> Please use GitHub for the latest code, issues, and pull requests.
+
+[new-repo]: https://github.com/AdguardTeam/BrowserAssistant
+
 <p align="center">
   Companion extension for the AdGuard desktop app — manage filtering
   right from the browser and hide annoying elements in two clicks.
